@@ -1,0 +1,27 @@
+{
+  "name": "surisuri-mahasuri-api",
+  "version": "1.0.0",
+  "description": "홈케어X API Server on Cloudflare Workers",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "db:create": "wrangler d1 create surisuri-mahasuri-db",
+    "db:execute": "wrangler d1 execute surisuri-mahasuri-db --file=./schema.sql",
+    "db:execute:remote": "wrangler d1 execute surisuri-mahasuri-db --remote --file=./schema.sql"
+  },
+  "keywords": ["cloudflare", "workers", "hono", "api"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "bcryptjs": "^3.0.3",
+    "hono": "^4.11.9",
+    "jsonwebtoken": "^9.0.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260217.0",
+    "wrangler": "^4.66.0"
+  }
+}

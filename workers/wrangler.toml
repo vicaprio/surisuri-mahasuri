@@ -1,0 +1,23 @@
+name = "surisuri-mahasuri-api"
+main = "src/index.js"
+compatibility_date = "2024-02-17"
+node_compat = true
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "surisuri-mahasuri-db"
+database_id = "" # Will be filled after creating D1 database
+
+# Environment Variables
+[vars]
+ENVIRONMENT = "production"
+
+# Secrets (set via wrangler secret put)
+# JWT_SECRET
+# KAKAO_CLIENT_ID
+# KAKAO_CLIENT_SECRET
+# NAVER_CLIENT_ID
+# NAVER_CLIENT_SECRET
+# GOOGLE_CLIENT_ID
+# GOOGLE_CLIENT_SECRET
