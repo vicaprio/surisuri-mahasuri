@@ -168,7 +168,7 @@ async function startAutoMatch(serviceRequestId) {
   // 4. 1순위 기사님에게 매칭 생성
   const topTechnician = rankedTechnicians[0];
   const now = new Date().toISOString();
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15분 후
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5분 후
 
   const match = prisma.serviceRequestMatch.create({
     data: {
@@ -192,7 +192,7 @@ async function startAutoMatch(serviceRequestId) {
     matchId: match.id,
     technicianId: topTechnician.id,
     technicianName: topTechnician.name,
-    estimatedResponseTime: '15분 이내',
+    estimatedResponseTime: '5분 이내',
     backupTechniciansCount: rankedTechnicians.length - 1
   };
 }

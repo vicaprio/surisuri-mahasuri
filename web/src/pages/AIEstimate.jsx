@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { servicesAPI, serviceRequestAPI, uploadAPI } from '../api/services';
 import { matchingAPI } from '../api/matching';
-import AddressInput from '../components/AddressInput';
+import BasicAddressInput from '../components/BasicAddressInput';
 import {
   Camera,
   Upload,
@@ -31,7 +31,6 @@ function AIEstimate() {
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [address, setAddress] = useState('');
-  const [addressDetail, setAddressDetail] = useState('');
   const [addressData, setAddressData] = useState(null);
 
   const categories = [
@@ -89,8 +88,8 @@ function AIEstimate() {
       return;
     }
 
-    if (!address || !addressDetail) {
-      alert('주소와 상세 주소를 입력해주세요.');
+    if (!address) {
+      alert('서비스 지역을 선택해주세요.');
       return;
     }
 
@@ -126,7 +125,7 @@ function AIEstimate() {
       const requestData = {
         serviceId: selectedService?.id || null,
         address: address,
-        addressDetail: addressDetail,
+        addressDetail: '', // 상세 주소는 매칭 확정 후 입력
         latitude: latitude,
         longitude: longitude,
         description: description || '사진을 참고해주세요',
@@ -327,11 +326,9 @@ function AIEstimate() {
 
               {/* Address Input */}
               <div className="mb-6">
-                <AddressInput
+                <BasicAddressInput
                   address={address}
-                  addressDetail={addressDetail}
                   onAddressChange={handleAddressChange}
-                  onAddressDetailChange={setAddressDetail}
                 />
               </div>
 
@@ -416,10 +413,7 @@ function AIEstimate() {
                     ✓ 사진 업로드: {images.length > 0 ? `${images.length}장` : '미완료'}
                   </li>
                   <li className={address ? 'text-green-600' : 'text-red-600'}>
-                    ✓ 주소 입력: {address ? '완료' : '미완료'}
-                  </li>
-                  <li className={addressDetail ? 'text-green-600' : 'text-red-600'}>
-                    ✓ 상세 주소 입력: {addressDetail ? '완료' : '미완료'}
+                    ✓ 서비스 지역 선택: {address ? '완료' : '미완료'}
                   </li>
                 </ul>
               </div>
@@ -429,8 +423,7 @@ function AIEstimate() {
                 disabled={
                   (category !== 'GENERAL' && !selectedService) ||
                   images.length === 0 ||
-                  !address ||
-                  !addressDetail
+                  !address
                 }
                 className="w-full py-4 bg-accent-500 text-white text-lg font-semibold rounded-xl hover:bg-accent-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
               >

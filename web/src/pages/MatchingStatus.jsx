@@ -20,6 +20,9 @@ function MatchingStatus() {
   const [matchStatus, setMatchStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [availableTechnicians, setAvailableTechnicians] = useState([]);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [detailedAddress, setDetailedAddress] = useState('');
 
   useEffect(() => {
     if (!serviceRequestId) {
@@ -42,18 +45,47 @@ function MatchingStatus() {
       setMatchStatus(statusData);
       setLoading(false);
 
-      // 매칭 완료되면 폴링 중지
-      if (statusData.status === 'MATCHED') {
-        // Auto redirect after 3 seconds
+      // Load available technicians for display (only on first load)
+      if (availableTechnicians.length === 0 && statusData.availableTechnicians) {
+        setAvailableTechnicians(statusData.availableTechnicians || []);
+      }
+
+      // 매칭 완료되면 상세 주소 입력 모달 표시
+      if (statusData.status === 'MATCHED' && !showAddressModal) {
         setTimeout(() => {
-          navigate('/history');
-        }, 3000);
+          setShowAddressModal(true);
+        }, 2000);
       }
     } catch (error) {
       console.error('Failed to load match status:', error);
       setError(error.response?.data?.error || '매칭 상태를 불러오지 못했습니다.');
       setLoading(false);
     }
+  };
+
+  const handleAddressSubmit = async () => {
+    if (!detailedAddress.trim()) {
+      alert('상세 주소를 입력해주세요.');
+      return;
+    }
+
+    try {
+      // TODO: API call to update service request with detailed address
+      // await serviceRequestAPI.updateAddress(serviceRequestId, detailedAddress);
+
+      // 상세 주소 입력 완료 후 이력으로 이동
+      setShowAddressModal(false);
+      navigate('/history');
+    } catch (error) {
+      console.error('Failed to update address:', error);
+      alert('주소 업데이트에 실패했습니다.');
+    }
+  };
+
+  const handleSkipAddress = () => {
+    // 나중에 입력하기
+    setShowAddressModal(false);
+    navigate('/history');
   };
 
   if (loading && !matchStatus) {
@@ -155,7 +187,7 @@ function MatchingStatus() {
                 <div>
                   <h3 className="font-semibold text-gray-900">전문가에게 알림을 보냈습니다</h3>
                   <p className="text-sm text-gray-600">
-                    응답을 기다리는 중... (최대 15분)
+                    응답을 기다리는 중... (최대 5분)
                   </p>
                 </div>
               </div>
@@ -296,7 +328,133 @@ function MatchingStatus() {
             </div>
           </div>
         )}
+
+        {/* Scrolling Technicians Carousel - 매칭 중일 때만 표시 */}
+        {(matchStatus?.status === 'SEARCHING' || matchStatus?.status === 'NOTIFYING') && (
+          <div className="mt-8 overflow-hidden">
+            <h3 className="text-sm font-semibold text-gray-600 mb-4 text-center">
+              🔧 해당 공종의 활동 중인 전문가들
+            </h3>
+            <div className="relative">
+              <div className="flex animate-scroll-left space-x-4">
+                {/* 기술자 카드 2번 반복해서 무한 스크롤 효과 */}
+                {[...Array(2)].map((_, repeatIndex) => (
+                  <div key={`repeat-${repeatIndex}`} className="flex space-x-4">
+                    {/* 샘플 기술자들 - 실제로는 matchStatus.availableTechnicians 사용 */}
+                    {[
+                      { id: 1, name: '김전기', rating: 4.9, reviews: 234, category: '전기', photo: null },
+                      { id: 2, name: '이배관', rating: 4.8, reviews: 189, category: '배관', photo: null },
+                      { id: 3, name: '박에어컨', rating: 4.7, reviews: 156, category: '에어컨', photo: null },
+                      { id: 4, name: '최도배', rating: 4.9, reviews: 267, category: '도배', photo: null },
+                      { id: 5, name: '정목공', rating: 4.8, reviews: 201, category: '목공', photo: null },
+                      { id: 6, name: '강샷시', rating: 4.6, reviews: 145, category: '샷시', photo: null },
+                    ].map((tech) => (
+                      <div
+                        key={`${repeatIndex}-${tech.id}`}
+                        className="flex-shrink-0 w-64 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-4 border border-gray-700"
+                      >
+                        <div className="flex items-center space-x-3 mb-3">
+                          <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
+                            {tech.photo ? (
+                              <img
+                                src={tech.photo}
+                                alt={tech.name}
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              <User className="w-6 h-6 text-white" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-white text-base truncate">
+                              {tech.name}
+                            </h4>
+                            <div className="flex items-center space-x-1 text-xs">
+                              <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                              <span className="text-yellow-400 font-medium">{tech.rating}</span>
+                              <span className="text-gray-400">({tech.reviews})</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-400">
+                            ✓ 무료 견적 받기 및 리뷰 보기
+                          </span>
+                          <span className="text-xs px-2 py-1 bg-primary-600/20 text-primary-400 rounded-full">
+                            {tech.category}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* 상세 주소 입력 모달 */}
+      {showAddressModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
+                <MapPin className="w-8 h-8 text-primary-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                상세 주소 입력
+              </h3>
+              <p className="text-sm text-gray-600">
+                기사님의 정확한 방문을 위해<br/>
+                상세 주소를 입력해주세요
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                기본 주소
+              </label>
+              <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600">
+                {matchStatus?.serviceRequest?.address || '주소 정보 없음'}
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                상세 주소 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={detailedAddress}
+                onChange={(e) => setDetailedAddress(e.target.value)}
+                placeholder="동/호수를 입력해주세요 (예: 101동 1001호)"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                autoFocus
+              />
+            </div>
+
+            <div className="space-y-2">
+              <button
+                onClick={handleAddressSubmit}
+                className="w-full py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+              >
+                확인
+              </button>
+              <button
+                onClick={handleSkipAddress}
+                className="w-full py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                나중에 입력하기
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-500 text-center mt-4">
+              💡 상세 주소는 수리 이력에서 언제든 수정 가능합니다
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
