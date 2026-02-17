@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OAuth URL 디버깅</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        button {
+            background: #4285f4;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #357ae8;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .highlight {
+            background: yellow;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Google OAuth URL 디버깅</h1>
+
+    <div class="section">
+        <h2>1. 현재 설정 확인</h2>
+        <button onclick="checkUrl()">URL 생성 및 확인</button>
+        <pre id="output"></pre>
+    </div>
+
+    <div class="section">
+        <h2>2. Google Cloud Console에 등록해야 할 값</h2>
+        <p><strong>승인된 JavaScript 원본:</strong></p>
+        <pre id="origin"></pre>
+
+        <p><strong>승인된 리디렉션 URI:</strong></p>
+        <pre id="redirectUri"></pre>
+    </div>
+
+    <div class="section">
+        <h2>3. 테스트</h2>
+        <p>아래 버튼을 클릭하면 실제 Google OAuth 페이지로 이동합니다:</p>
+        <button onclick="testOAuth()">Google OAuth 테스트</button>
+    </div>
+
+    <script>
+        const googleClientId = '328518017006-0v2a07jbnabopvlkd005fsicknlk1rp4.apps.googleusercontent.com';
+
+        function checkUrl() {
+            const baseUrl = window.location.origin;
+            const redirectUri = `${baseUrl}/oauth/google/callback`;
+            const encodedRedirectUri = encodeURIComponent(redirectUri);
+
+            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodedRedirectUri}&response_type=code&scope=openid%20email%20profile`;
+
+            document.getElementById('output').textContent =
+                '현재 페이지 Origin: ' + baseUrl + '\n\n' +
+                'Redirect URI (원본): ' + redirectUri + '\n\n' +
+                'Redirect URI (URL 인코딩): ' + encodedRedirectUri + '\n\n' +
+                '전체 OAuth URL:\n' + authUrl;
+
+            document.getElementById('origin').textContent = baseUrl;
+            document.getElementById('redirectUri').textContent = redirectUri;
+
+            console.log('=== OAuth Debug Info ===');
+            console.log('Origin:', baseUrl);
+            console.log('Redirect URI:', redirectUri);
+            console.log('Encoded:', encodedRedirectUri);
+            console.log('Full URL:', authUrl);
+        }
+
+        function testOAuth() {
+            const baseUrl = window.location.origin;
+            const redirectUri = `${baseUrl}/oauth/google/callback`;
+            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid%20email%20profile`;
+
+            window.location.href = authUrl;
+        }
+
+        // 페이지 로드 시 자동 실행
+        window.onload = checkUrl;
+    </script>
+</body>
+</html>

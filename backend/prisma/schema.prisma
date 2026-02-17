@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  password        String?
+  name            String
+  phone           String?
+  userType        String           @default("GENERAL")
+  status          String           @default("ACTIVE")
+  companyId       String?
+  provider        String?          @default("local")
+  providerId      String?
+  profilePhoto    String?
+  company         Company?         @relation(fields: [companyId], references: [id])
+  serviceRequests ServiceRequest[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([email])
+  @@index([companyId])
+  @@index([provider, providerId])
+}
+
+model Company {
+  id             String     @id @default(uuid())
+  name           String
+  businessNumber String     @unique
+  address        String
+  phone          String
+  email          String
+  users          User[]
+  buildings      Building[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([businessNumber])
+}
+
+model Building {
+  id         String   @id @default(uuid())
+  name       String
+  address    String
+  postalCode String?
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id])
+  units      Unit[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([companyId])
+}
+
+model Unit {
+  id              String           @id @default(uuid())
+  unitNumber      String
+  floor           Int?
+  area            Float?
+  buildingId      String
+  building        Building         @relation(fields: [buildingId], references: [id])
+  serviceRequests ServiceRequest[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([buildingId])
+}
+
+model Service {
+  id                String            @id @default(uuid())
+  code              String            @unique
+  name              String
+  description       String
+  category          String
+  difficulty        String
+  estimatedDuration Int
+  basePrice         Int
+  slaAvailable      Boolean           @default(true)
+  warrantyDays      Int               @default(365)
+  serviceRequests   ServiceRequest[]
+  technicianSkills  TechnicianSkill[]
+  isActive          Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([category])
+  @@index([code])
+}
+
+model ServiceRequest {
+  id            String       @id @default(uuid())
+  requestNumber String       @unique
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  serviceId     String?
+  service       Service?     @relation(fields: [serviceId], references: [id])
+  unitId        String?
+  unit          Unit?        @relation(fields: [unitId], references: [id])
+  requestType   String       @default("ASAP")
+  scheduledAt   DateTime?
+  address       String
+  addressDetail String?
+  latitude      Float?
+  longitude     Float?
+  description   String?
+  photoUrls     String?
+  estimatedCost Int
+  finalCost     Int?
+  status        String       @default("REQUESTED")
+  technicianId  String?
+  technician    Technician?  @relation(fields: [technicianId], references: [id])
+  requestedAt   DateTime     @default(now())
+  assignedAt    DateTime?
+  arrivedAt     DateTime?
+  completedAt   DateTime?
+  slaDeadline   DateTime?
+  slaViolated   Boolean      @default(false)
+  logs          ServiceLog[]
+  warranty      Warranty?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([userId])
+  @@index([serviceId])
+  @@index([technicianId])
+  @@index([status])
+  @@index([requestedAt])
+}
+
+model ServiceLog {
+  id               String         @id @default(uuid())
+  serviceRequestId String
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id])
+  logType          String
+  oldStatus        String?
+  newStatus        String?
+  content          String?
+  photoUrls        String?
+  createdBy        String
+  createdAt        DateTime       @default(now())
+
+  @@index([serviceRequestId])
+  @@index([createdAt])
+}
+
+model Warranty {
+  id               String         @id @default(uuid())
+  warrantyNumber   String         @unique
+  serviceRequestId String         @unique
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id])
+  status           String         @default("ACTIVE")
+  startDate        DateTime       @default(now())
+  endDate          DateTime
+  terms            String?
+  claimCount       Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([serviceRequestId])
+  @@index([warrantyNumber])
+  @@index([status])
+}
+
+model Technician {
+  id               String            @id @default(uuid())
+  email            String            @unique
+  password         String?
+  name             String
+  phone            String?
+  profilePhoto     String?
+  bio              String?
+  currentLatitude  Float?
+  currentLongitude Float?
+  serviceArea      String?
+  status           String            @default("OFFLINE")
+  rating           Float             @default(0)
+  reviewCount      Int               @default(0)
+  acceptanceRate   Float             @default(100)
+  ontimeRate       Float             @default(100)
+  complaintRate    Float             @default(0)
+  completedJobs    Int               @default(0)
+  provider         String?           @default("local")
+  providerId       String?
+  skills           TechnicianSkill[]
+  serviceRequests  ServiceRequest[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([provider, providerId])
+}
+
+model TechnicianSkill {
+  id           String     @id @default(uuid())
+  technicianId String
+  technician   Technician @relation(fields: [technicianId], references: [id])
+  serviceId    String
+  service      Service    @relation(fields: [serviceId], references: [id])
+  skillLevel   Int        @default(1)
+  certifiedAt  DateTime?
+  createdAt    DateTime   @default(now())
+
+  @@unique([technicianId, serviceId])
+  @@index([technicianId])
+  @@index([serviceId])
+}
