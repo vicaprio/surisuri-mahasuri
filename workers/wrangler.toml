@@ -1,13 +1,13 @@
 name = "surisuri-mahasuri-api"
 main = "src/index.js"
-compatibility_date = "2024-02-17"
-node_compat = true
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
 
 # D1 Database
 [[d1_databases]]
 binding = "DB"
 database_name = "surisuri-mahasuri-db"
-database_id = "" # Will be filled after creating D1 database
+database_id = "67c8a8eb-1c25-45b1-9a24-3728ab61922c"
 
 # Environment Variables
 [vars]
