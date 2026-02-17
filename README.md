@@ -73,3 +73,4 @@ npm run dev               # 앱 시작 (http://localhost:5173)
 ---
 
 Made with ❤️ by Claude Code
+# Test auto-deploy
