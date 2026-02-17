@@ -41,3 +41,19 @@ app-example
 # generated native folders
 /ios
 /android
+
+# IDE Settings
+.vscode/
+.idx/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.log
+*.tmp
