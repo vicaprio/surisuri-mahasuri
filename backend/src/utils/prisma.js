@@ -1,4 +1,5 @@
-// Using better-sqlite3 wrapper instead of Prisma due to libssl issues
-const prisma = require('./db');
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient();
 
 module.exports = prisma;

@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -94,15 +94,15 @@ model Service {
 }
 
 model ServiceRequest {
-  id            String       @id @default(uuid())
-  requestNumber String       @unique
+  id            String                @id @default(uuid())
+  requestNumber String                @unique
   userId        String
-  user          User         @relation(fields: [userId], references: [id])
+  user          User                  @relation(fields: [userId], references: [id])
   serviceId     String?
-  service       Service?     @relation(fields: [serviceId], references: [id])
+  service       Service?              @relation(fields: [serviceId], references: [id])
   unitId        String?
-  unit          Unit?        @relation(fields: [unitId], references: [id])
-  requestType   String       @default("ASAP")
+  unit          Unit?                 @relation(fields: [unitId], references: [id])
+  requestType   String                @default("ASAP")
   scheduledAt   DateTime?
   address       String
   addressDetail String?
@@ -112,19 +112,20 @@ model ServiceRequest {
   photoUrls     String?
   estimatedCost Int
   finalCost     Int?
-  status        String       @default("REQUESTED")
+  status        String                @default("REQUESTED")
   technicianId  String?
-  technician    Technician?  @relation(fields: [technicianId], references: [id])
-  requestedAt   DateTime     @default(now())
+  technician    Technician?           @relation(fields: [technicianId], references: [id], name: "AssignedTechnician")
+  requestedAt   DateTime              @default(now())
   assignedAt    DateTime?
   arrivedAt     DateTime?
   completedAt   DateTime?
   slaDeadline   DateTime?
-  slaViolated   Boolean      @default(false)
+  slaViolated   Boolean               @default(false)
   logs          ServiceLog[]
   warranty      Warranty?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  matches       ServiceRequestMatch[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
 
   @@index([userId])
   @@index([serviceId])
@@ -168,8 +169,8 @@ model Warranty {
 }
 
 model Technician {
-  id               String            @id @default(uuid())
-  email            String            @unique
+  id               String                @id @default(uuid())
+  email            String                @unique
   password         String?
   name             String
   phone            String?
@@ -178,19 +179,20 @@ model Technician {
   currentLatitude  Float?
   currentLongitude Float?
   serviceArea      String?
-  status           String            @default("OFFLINE")
-  rating           Float             @default(0)
-  reviewCount      Int               @default(0)
-  acceptanceRate   Float             @default(100)
-  ontimeRate       Float             @default(100)
-  complaintRate    Float             @default(0)
-  completedJobs    Int               @default(0)
-  provider         String?           @default("local")
+  status           String                @default("OFFLINE")
+  rating           Float                 @default(0)
+  reviewCount      Int                   @default(0)
+  acceptanceRate   Float                 @default(100)
+  ontimeRate       Float                 @default(100)
+  complaintRate    Float                 @default(0)
+  completedJobs    Int                   @default(0)
+  provider         String?               @default("local")
   providerId       String?
   skills           TechnicianSkill[]
-  serviceRequests  ServiceRequest[]
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  serviceRequests  ServiceRequest[]      @relation("AssignedTechnician")
+  matches          ServiceRequestMatch[]
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
 
   @@index([email])
   @@index([status])
@@ -210,4 +212,23 @@ model TechnicianSkill {
   @@unique([technicianId, serviceId])
   @@index([technicianId])
   @@index([serviceId])
+}
+
+model ServiceRequestMatch {
+  id               String         @id @default(uuid())
+  serviceRequestId String
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id])
+  technicianId     String
+  technician       Technician     @relation(fields: [technicianId], references: [id])
+  status           String         @default("PENDING")
+  priority         Int            @default(0)
+  notifiedAt       DateTime       @default(now())
+  respondedAt      DateTime?
+  expiresAt        DateTime
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([serviceRequestId])
+  @@index([technicianId])
+  @@index([status])
 }
