@@ -32,6 +32,7 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
 
 # typescript
 *.tsbuildinfo
@@ -57,3 +58,7 @@ Thumbs.db
 # Temporary files
 *.log
 *.tmp
+
+# Screenshots and test files
+components/screecapture/
+components/screen shot/

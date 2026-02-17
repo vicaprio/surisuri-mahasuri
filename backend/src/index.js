@@ -22,11 +22,32 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://5173-firebase-surisuri-mahasuri-1771240128104.cluster-bqwaigqtxbeautecnatk4o6ynk.cloudworkstations.dev'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://5173-firebase-surisuri-mahasuri-1771240128104.cluster-bqwaigqtxbeautecnatk4o6ynk.cloudworkstations.dev',
+      /\.pages\.dev$/, // Allow all Cloudflare Pages domains
+      /\.vercel\.app$/, // Allow Vercel domains if needed
+    ];
+
+    const isAllowed = allowedOrigins.some(pattern => {
+      if (pattern instanceof RegExp) {
+        return pattern.test(origin);
+      }
+      return pattern === origin;
+    });
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin);
+      callback(null, false);
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

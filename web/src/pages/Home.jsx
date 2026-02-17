@@ -457,7 +457,7 @@ function Home() {
               <ul className="space-y-2 text-sm">
                 <li><button className="hover:text-white">AI 견적</button></li>
                 <li><button className="hover:text-white">수리이력</button></li>
-                <li><button className="hover:text-white">기사님 등록</button></li>
+                <li><button onClick={() => navigate('/technician-register')} className="hover:text-white">기사님 등록</button></li>
               </ul>
             </div>
             <div>

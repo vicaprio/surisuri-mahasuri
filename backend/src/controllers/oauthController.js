@@ -5,7 +5,7 @@ const { generateToken } = require('../utils/jwt');
 // Kakao OAuth
 exports.kakaoAuth = async (req, res) => {
   try {
-    const { code } = req.body;
+    const { code, accountType = 'user' } = req.body;
 
     console.log('Kakao OAuth request received');
     console.log('Code:', code ? `${code.substring(0, 20)}...` : 'missing');
@@ -46,70 +46,126 @@ exports.kakaoAuth = async (req, res) => {
     const name = kakaoUser.kakao_account?.profile?.nickname || '카카오 사용자';
     const profilePhoto = kakaoUser.kakao_account?.profile?.profile_image_url || null;
 
-    // Find or create user
-    console.log('Looking for user with provider: kakao, providerId:', providerId);
+    console.log('Account type:', accountType);
 
-    let user = await prisma.user.findFirst({
-      where: {
-        provider: 'kakao',
-        providerId,
-      },
-    });
+    let user;
+    let isTechnician = accountType === 'technician';
 
-    console.log('Found existing user:', user ? { id: user.id, email: user.email } : 'null');
+    if (isTechnician) {
+      // Handle technician account
+      console.log('Looking for technician with provider: kakao, providerId:', providerId);
 
-    // If user exists but has null id (corrupted data), treat as new user
-    if (user && !user.id) {
-      console.log('Found corrupted user record (null id), will create new one with different email');
-      user = null; // Force recreation with modified email
-    }
-
-    if (!user) {
-      // Check if email already exists
-      const existingUser = await prisma.user.findUnique({
-        where: { email },
-      });
-
-      if (existingUser && existingUser.provider !== 'kakao') {
-        console.log('Email already exists with different provider:', existingUser.provider);
-        return res.status(400).json({
-          error: '이미 다른 방법으로 가입된 이메일입니다.',
-        });
-      }
-
-      // If email exists due to corrupted record, use modified email with timestamp
-      let finalEmail = email;
-      if (existingUser) {
-        finalEmail = `kakao_${providerId}_${Date.now()}@kakao.local`;
-        console.log('Using alternate email due to existing record:', finalEmail);
-      }
-
-      console.log('Creating new user with email:', finalEmail);
-
-      // Create new user
-      user = await prisma.user.create({
-        data: {
-          email: finalEmail,
-          name,
-          phone: '',
+      user = await prisma.technician.findFirst({
+        where: {
           provider: 'kakao',
           providerId,
-          profilePhoto,
-          userType: 'GENERAL',
-          status: 'ACTIVE',
         },
       });
 
-      console.log('User created:', { id: user.id, email: user.email });
+      console.log('Found existing technician:', user ? { id: user.id, email: user.email } : 'null');
+
+      if (user && !user.id) {
+        console.log('Found corrupted technician record (null id), will create new one');
+        user = null;
+      }
+
+      if (!user) {
+        // Check if email already exists
+        const existingTech = await prisma.technician.findUnique({
+          where: { email },
+        });
+
+        if (existingTech && existingTech.provider !== 'kakao') {
+          console.log('Email already exists with different provider:', existingTech.provider);
+          return res.status(400).json({
+            error: '이미 다른 방법으로 가입된 이메일입니다.',
+          });
+        }
+
+        let finalEmail = email;
+        if (existingTech) {
+          finalEmail = `kakao_${providerId}_${Date.now()}@kakao.local`;
+          console.log('Using alternate email due to existing record:', finalEmail);
+        }
+
+        console.log('Creating new technician with email:', finalEmail);
+
+        user = await prisma.technician.create({
+          data: {
+            email: finalEmail,
+            name,
+            phone: '',
+            provider: 'kakao',
+            providerId,
+            profilePhoto,
+            status: 'OFFLINE',
+          },
+        });
+
+        console.log('Technician created:', { id: user.id, email: user.email });
+      }
+    } else {
+      // Handle regular user account
+      console.log('Looking for user with provider: kakao, providerId:', providerId);
+
+      user = await prisma.user.findFirst({
+        where: {
+          provider: 'kakao',
+          providerId,
+        },
+      });
+
+      console.log('Found existing user:', user ? { id: user.id, email: user.email } : 'null');
+
+      if (user && !user.id) {
+        console.log('Found corrupted user record (null id), will create new one');
+        user = null;
+      }
+
+      if (!user) {
+        const existingUser = await prisma.user.findUnique({
+          where: { email },
+        });
+
+        if (existingUser && existingUser.provider !== 'kakao') {
+          console.log('Email already exists with different provider:', existingUser.provider);
+          return res.status(400).json({
+            error: '이미 다른 방법으로 가입된 이메일입니다.',
+          });
+        }
+
+        let finalEmail = email;
+        if (existingUser) {
+          finalEmail = `kakao_${providerId}_${Date.now()}@kakao.local`;
+          console.log('Using alternate email due to existing record:', finalEmail);
+        }
+
+        console.log('Creating new user with email:', finalEmail);
+
+        user = await prisma.user.create({
+          data: {
+            email: finalEmail,
+            name,
+            phone: '',
+            provider: 'kakao',
+            providerId,
+            profilePhoto,
+            userType: 'GENERAL',
+            status: 'ACTIVE',
+          },
+        });
+
+        console.log('User created:', { id: user.id, email: user.email });
+      }
     }
 
-    console.log('Final user object:', { id: user.id, email: user.email, provider: user.provider });
+    console.log('Final account:', { id: user.id, email: user.email, provider: user.provider, type: isTechnician ? 'technician' : 'user' });
 
     // Generate JWT token
     const token = generateToken({
       id: user.id,
-      type: 'user',
-      userType: user.userType,
+      type: isTechnician ? 'technician' : 'user',
+      userType: user.userType || 'technician',
     });
 
     const responseData = {
@@ -120,7 +176,8 @@ exports.kakaoAuth = async (req, res) => {
           email: user.email,
           name: user.name,
           phone: user.phone,
-          userType: user.userType,
+          userType: isTechnician ? 'technician' : user.userType,
+          role: isTechnician ? 'technician' : 'user',
           profilePhoto: user.profilePhoto,
         },
         token,
@@ -150,7 +207,7 @@ exports.kakaoAuth = async (req, res) => {
 // Naver OAuth
 exports.naverAuth = async (req, res) => {
   try {
-    const { code, state } = req.body;
+    const { code, state, accountType = 'user' } = req.body;
 
     console.log('Naver OAuth request received');
     console.log('Code:', code ? `${code.substring(0, 20)}...` : 'missing');
@@ -188,70 +245,123 @@ exports.naverAuth = async (req, res) => {
     const phone = naverUser.mobile?.replace(/-/g, '') || '';
     const profilePhoto = naverUser.profile_image || null;
 
-    // Find or create user
-    console.log('Looking for user with provider: naver, providerId:', providerId);
+    console.log('Account type:', accountType);
 
-    let user = await prisma.user.findFirst({
-      where: {
-        provider: 'naver',
-        providerId,
-      },
-    });
+    let user;
+    let isTechnician = accountType === 'technician';
 
-    console.log('Found existing user:', user ? { id: user.id, email: user.email } : 'null');
+    if (isTechnician) {
+      console.log('Looking for technician with provider: naver, providerId:', providerId);
 
-    // If user exists but has null id (corrupted data), treat as new user
-    if (user && !user.id) {
-      console.log('Found corrupted user record (null id), will create new one with different email');
-      user = null; // Force recreation with modified email
-    }
-
-    if (!user) {
-      // Check if email already exists
-      const existingUser = await prisma.user.findUnique({
-        where: { email },
-      });
-
-      if (existingUser && existingUser.provider !== 'naver') {
-        console.log('Email already exists with different provider:', existingUser.provider);
-        return res.status(400).json({
-          error: '이미 다른 방법으로 가입된 이메일입니다.',
-        });
-      }
-
-      // If email exists due to corrupted record, use modified email with timestamp
-      let finalEmail = email;
-      if (existingUser) {
-        finalEmail = `naver_${providerId}_${Date.now()}@naver.local`;
-        console.log('Using alternate email due to existing record:', finalEmail);
-      }
-
-      console.log('Creating new user with email:', finalEmail);
-
-      // Create new user
-      user = await prisma.user.create({
-        data: {
-          email: finalEmail,
-          name,
-          phone,
+      user = await prisma.technician.findFirst({
+        where: {
           provider: 'naver',
           providerId,
-          profilePhoto,
-          userType: 'GENERAL',
-          status: 'ACTIVE',
         },
       });
 
-      console.log('User created:', { id: user.id, email: user.email });
+      console.log('Found existing technician:', user ? { id: user.id, email: user.email } : 'null');
+
+      if (user && !user.id) {
+        console.log('Found corrupted technician record (null id), will create new one');
+        user = null;
+      }
+
+      if (!user) {
+        const existingTech = await prisma.technician.findUnique({
+          where: { email },
+        });
+
+        if (existingTech && existingTech.provider !== 'naver') {
+          console.log('Email already exists with different provider:', existingTech.provider);
+          return res.status(400).json({
+            error: '이미 다른 방법으로 가입된 이메일입니다.',
+          });
+        }
+
+        let finalEmail = email;
+        if (existingTech) {
+          finalEmail = `naver_${providerId}_${Date.now()}@naver.local`;
+          console.log('Using alternate email due to existing record:', finalEmail);
+        }
+
+        console.log('Creating new technician with email:', finalEmail);
+
+        user = await prisma.technician.create({
+          data: {
+            email: finalEmail,
+            name,
+            phone,
+            provider: 'naver',
+            providerId,
+            profilePhoto,
+            status: 'OFFLINE',
+          },
+        });
+
+        console.log('Technician created:', { id: user.id, email: user.email });
+      }
+    } else {
+      console.log('Looking for user with provider: naver, providerId:', providerId);
+
+      user = await prisma.user.findFirst({
+        where: {
+          provider: 'naver',
+          providerId,
+        },
+      });
+
+      console.log('Found existing user:', user ? { id: user.id, email: user.email } : 'null');
+
+      if (user && !user.id) {
+        console.log('Found corrupted user record (null id), will create new one');
+        user = null;
+      }
+
+      if (!user) {
+        const existingUser = await prisma.user.findUnique({
+          where: { email },
+        });
+
+        if (existingUser && existingUser.provider !== 'naver') {
+          console.log('Email already exists with different provider:', existingUser.provider);
+          return res.status(400).json({
+            error: '이미 다른 방법으로 가입된 이메일입니다.',
+          });
+        }
+
+        let finalEmail = email;
+        if (existingUser) {
+          finalEmail = `naver_${providerId}_${Date.now()}@naver.local`;
+          console.log('Using alternate email due to existing record:', finalEmail);
+        }
+
+        console.log('Creating new user with email:', finalEmail);
+
+        user = await prisma.user.create({
+          data: {
+            email: finalEmail,
+            name,
+            phone,
+            provider: 'naver',
+            providerId,
+            profilePhoto,
+            userType: 'GENERAL',
+            status: 'ACTIVE',
+          },
+        });
+
+        console.log('User created:', { id: user.id, email: user.email });
+      }
     }
 
-    console.log('Final user object:', { id: user.id, email: user.email, provider: user.provider });
+    console.log('Final account:', { id: user.id, email: user.email, provider: user.provider, type: isTechnician ? 'technician' : 'user' });
 
     // Generate JWT token
     const token = generateToken({
       id: user.id,
-      type: 'user',
-      userType: user.userType,
+      type: isTechnician ? 'technician' : 'user',
+      userType: user.userType || 'technician',
     });
 
     const responseData = {
@@ -262,7 +372,8 @@ exports.naverAuth = async (req, res) => {
           email: user.email,
           name: user.name,
           phone: user.phone,
-          userType: user.userType,
+          userType: isTechnician ? 'technician' : user.userType,
+          role: isTechnician ? 'technician' : 'user',
           profilePhoto: user.profilePhoto,
         },
         token,
@@ -292,7 +403,7 @@ exports.naverAuth = async (req, res) => {
 // Google OAuth
 exports.googleAuth = async (req, res) => {
   try {
-    const { code } = req.body;
+    const { code, accountType = 'user' } = req.body;
 
     console.log('Google OAuth request received');
     console.log('Code:', code ? `${code.substring(0, 20)}...` : 'missing');
@@ -330,70 +441,123 @@ exports.googleAuth = async (req, res) => {
     const name = googleUser.name || '구글 사용자';
     const profilePhoto = googleUser.picture || null;
 
-    // Find or create user
-    console.log('Looking for user with provider: google, providerId:', providerId);
+    console.log('Account type:', accountType);
 
-    let user = await prisma.user.findFirst({
-      where: {
-        provider: 'google',
-        providerId,
-      },
-    });
+    let user;
+    let isTechnician = accountType === 'technician';
 
-    console.log('Found existing user:', user ? { id: user.id, email: user.email } : 'null');
+    if (isTechnician) {
+      console.log('Looking for technician with provider: google, providerId:', providerId);
 
-    // If user exists but has null id (corrupted data), treat as new user
-    if (user && !user.id) {
-      console.log('Found corrupted user record (null id), will create new one with different email');
-      user = null; // Force recreation with modified email
-    }
-
-    if (!user) {
-      // Check if email already exists
-      const existingUser = await prisma.user.findUnique({
-        where: { email },
-      });
-
-      if (existingUser && existingUser.provider !== 'google') {
-        console.log('Email already exists with different provider:', existingUser.provider);
-        return res.status(400).json({
-          error: '이미 다른 방법으로 가입된 이메일입니다.',
-        });
-      }
-
-      // If email exists due to corrupted record, use modified email with timestamp
-      let finalEmail = email;
-      if (existingUser) {
-        finalEmail = `google_${providerId}_${Date.now()}@gmail.local`;
-        console.log('Using alternate email due to existing record:', finalEmail);
-      }
-
-      console.log('Creating new user with email:', finalEmail);
-
-      // Create new user
-      user = await prisma.user.create({
-        data: {
-          email: finalEmail,
-          name,
-          phone: '',
+      user = await prisma.technician.findFirst({
+        where: {
           provider: 'google',
           providerId,
-          profilePhoto,
-          userType: 'GENERAL',
-          status: 'ACTIVE',
         },
       });
 
-      console.log('User created:', { id: user.id, email: user.email });
+      console.log('Found existing technician:', user ? { id: user.id, email: user.email } : 'null');
+
+      if (user && !user.id) {
+        console.log('Found corrupted technician record (null id), will create new one');
+        user = null;
+      }
+
+      if (!user) {
+        const existingTech = await prisma.technician.findUnique({
+          where: { email },
+        });
+
+        if (existingTech && existingTech.provider !== 'google') {
+          console.log('Email already exists with different provider:', existingTech.provider);
+          return res.status(400).json({
+            error: '이미 다른 방법으로 가입된 이메일입니다.',
+          });
+        }
+
+        let finalEmail = email;
+        if (existingTech) {
+          finalEmail = `google_${providerId}_${Date.now()}@gmail.local`;
+          console.log('Using alternate email due to existing record:', finalEmail);
+        }
+
+        console.log('Creating new technician with email:', finalEmail);
+
+        user = await prisma.technician.create({
+          data: {
+            email: finalEmail,
+            name,
+            phone: '',
+            provider: 'google',
+            providerId,
+            profilePhoto,
+            status: 'OFFLINE',
+          },
+        });
+
+        console.log('Technician created:', { id: user.id, email: user.email });
+      }
+    } else {
+      console.log('Looking for user with provider: google, providerId:', providerId);
+
+      user = await prisma.user.findFirst({
+        where: {
+          provider: 'google',
+          providerId,
+        },
+      });
+
+      console.log('Found existing user:', user ? { id: user.id, email: user.email } : 'null');
+
+      if (user && !user.id) {
+        console.log('Found corrupted user record (null id), will create new one');
+        user = null;
+      }
+
+      if (!user) {
+        const existingUser = await prisma.user.findUnique({
+          where: { email },
+        });
+
+        if (existingUser && existingUser.provider !== 'google') {
+          console.log('Email already exists with different provider:', existingUser.provider);
+          return res.status(400).json({
+            error: '이미 다른 방법으로 가입된 이메일입니다.',
+          });
+        }
+
+        let finalEmail = email;
+        if (existingUser) {
+          finalEmail = `google_${providerId}_${Date.now()}@gmail.local`;
+          console.log('Using alternate email due to existing record:', finalEmail);
+        }
+
+        console.log('Creating new user with email:', finalEmail);
+
+        user = await prisma.user.create({
+          data: {
+            email: finalEmail,
+            name,
+            phone: '',
+            provider: 'google',
+            providerId,
+            profilePhoto,
+            userType: 'GENERAL',
+            status: 'ACTIVE',
+          },
+        });
+
+        console.log('User created:', { id: user.id, email: user.email });
+      }
     }
 
-    console.log('Final user object:', { id: user.id, email: user.email, provider: user.provider });
+    console.log('Final account:', { id: user.id, email: user.email, provider: user.provider, type: isTechnician ? 'technician' : 'user' });
 
     // Generate JWT token
     const token = generateToken({
       id: user.id,
-      type: 'user',
-      userType: user.userType,
+      type: isTechnician ? 'technician' : 'user',
+      userType: user.userType || 'technician',
     });
 
     const responseData = {
@@ -404,7 +568,8 @@ exports.googleAuth = async (req, res) => {
           email: user.email,
           name: user.name,
           phone: user.phone,
-          userType: user.userType,
+          userType: isTechnician ? 'technician' : user.userType,
+          role: isTechnician ? 'technician' : 'user',
           profilePhoto: user.profilePhoto,
         },
         token,

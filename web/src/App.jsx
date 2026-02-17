@@ -8,6 +8,7 @@ import AIEstimate from './pages/AIEstimate';
 import RepairHistory from './pages/RepairHistory';
 import TechnicianDashboard from './pages/TechnicianDashboard';
 import TechnicianProfile from './pages/TechnicianProfile';
+import TechnicianRegister from './pages/TechnicianRegister';
 import Payment from './pages/Payment';
 import PaymentSuccess from './pages/PaymentSuccess';
 import WriteReview from './pages/WriteReview';
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/history" element={<RepairHistory />} />
                 <Route path="/technician" element={<TechnicianDashboard />} />
                 <Route path="/technician/:id" element={<TechnicianProfile />} />
+                <Route path="/technician-register" element={<TechnicianRegister />} />
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/payment/success" element={<PaymentSuccess />} />
                 <Route path="/review/write" element={<WriteReview />} />

@@ -62,6 +62,9 @@ function Login() {
   };
 
   const handleSocialLogin = (provider) => {
+    // OAuth 플로우를 시작하기 전에 accountType을 localStorage에 저장
+    localStorage.setItem('oauth_account_type', userType === 'technician' ? 'technician' : 'user');
+
     const baseUrl = window.location.origin;
     const redirectUri = `${baseUrl}/oauth/${provider}/callback`;
 
@@ -191,8 +194,7 @@ function Login() {
           </form>
 
           {/* Social Login */}
-          {userType === 'user' && (
-            <div className="mt-6">
+          <div className="mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300" />
@@ -240,7 +242,6 @@ function Login() {
                 </button>
               </div>
             </div>
-          )}
 
           {/* Quick Login for Testing */}
           <div className="mt-8 pt-6 border-t border-gray-200">

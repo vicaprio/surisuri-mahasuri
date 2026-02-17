@@ -42,13 +42,19 @@ function OAuthCallback() {
           localStorage.removeItem('naver_state');
         }
 
+        // Get account type from localStorage (set during OAuth initiation)
+        const accountType = localStorage.getItem('oauth_account_type') || 'user';
+        localStorage.removeItem('oauth_account_type'); // Clean up
+
         // Send code to backend
         const apiUrl = import.meta.env.VITE_API_URL || '/api';
         console.log('Sending OAuth request to:', `${apiUrl}/oauth/${provider}`);
+        console.log('Account type:', accountType);
 
         const response = await axios.post(`${apiUrl}/oauth/${provider}`, {
           code,
           state: state || undefined,
+          accountType, // Pass accountType to backend
         });
 
         console.log('OAuth response received:', response.data);
@@ -71,10 +77,14 @@ function OAuthCallback() {
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
 
-          console.log('OAuth login successful:', { userId: user.id, email: user.email });
+          console.log('OAuth login successful:', { userId: user.id, email: user.email, userType: user.userType });
 
-          // Redirect to home
-          navigate('/');
+          // Redirect based on user type
+          if (user.userType === 'technician' || user.role === 'technician') {
+            navigate('/technician');
+          } else {
+            navigate('/');
+          }
         } else {
           console.error('Invalid response format:', response.data);
           throw new Error('로그인 응답 형식이 올바르지 않습니다.');
