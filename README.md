@@ -24,12 +24,19 @@ npm run dev               # 앱 시작 (http://localhost:5173)
 
 ## 📝 테스트 계정
 
+> ⚠️ **로컬 개발 환경 전용** - 프로덕션에서는 사용하지 마세요!
+
 | 구분 | Email | Password |
 |------|-------|----------|
-| 일반 사용자 | user@test.com | password123 |
-| 기업 사용자 | company@test.com | password123 |
-| 기사님 (전기) | tech1@test.com | password123 |
-| 기사님 (배관) | tech2@test.com | password123 |
+| 일반 사용자 | user@test.com | `password123` |
+| 기업 사용자 | company@test.com | `password123` |
+| 기사님 (전기) | tech1@test.com | `password123` |
+| 기사님 (배관) | tech2@test.com | `password123` |
+
+**보안 참고사항:**
+- 이 계정들은 로컬 개발 환경(`localhost`)에서만 사용하세요
+- 프로덕션 배포 시 별도의 계정을 생성하세요
+- 실제 서비스에서는 강력한 비밀번호를 사용하세요
 
 ## ✨ 주요 기능
 
@@ -70,7 +77,27 @@ npm run dev               # 앱 시작 (http://localhost:5173)
 
 자세한 내용은 http://localhost:3001 참조
 
+## 🔐 보안 가이드
+
+### 프로덕션 배포 시 주의사항
+
+1. **환경 변수 설정**
+   - `.env` 파일을 절대 커밋하지 마세요
+   - Cloudflare Pages 환경 변수에서 설정하세요
+
+2. **테스트 계정 삭제**
+   - 프로덕션 DB에서 테스트 계정을 제거하세요
+   - 실제 사용자만 접근 가능하도록 설정하세요
+
+3. **비밀번호 정책**
+   - 최소 8자 이상
+   - 영문, 숫자, 특수문자 조합
+   - bcrypt로 해싱 (이미 적용됨)
+
+4. **API 키 보호**
+   - JWT Secret은 강력한 랜덤 문자열 사용
+   - 환경 변수로만 관리
+
 ---
 
 Made with ❤️ by Claude Code
-# Test auto-deploy
