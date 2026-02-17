@@ -26,12 +26,7 @@ npm run dev               # 앱 시작 (http://localhost:5173)
 
 > ⚠️ **로컬 개발 환경 전용** - 프로덕션에서는 사용하지 마세요!
 
-| 구분 | Email | Password |
-|------|-------|----------|
-| 일반 사용자 | user@test.com | `password123` |
-| 기업 사용자 | company@test.com | `password123` |
-| 기사님 (전기) | tech1@test.com | `password123` |
-| 기사님 (배관) | tech2@test.com | `password123` |
+
 
 **보안 참고사항:**
 - 이 계정들은 로컬 개발 환경(`localhost`)에서만 사용하세요
