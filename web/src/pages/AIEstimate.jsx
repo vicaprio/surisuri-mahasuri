@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { servicesAPI, serviceRequestAPI, uploadAPI } from '../api/services';
+import { servicesAPI, serviceRequestAPI, uploadAPI, aiAPI } from '../api/services';
 import { matchingAPI } from '../api/matching';
 import BasicAddressInput from '../components/BasicAddressInput';
 import {
@@ -116,8 +116,21 @@ function AIEstimate() {
         photoUrls = uploadResponse.data.data.map(file => file.url);
       }
 
+      // Call AI analysis
+      let aiResult = null;
+      try {
+        const aiResponse = await aiAPI.analyzeEstimate({
+          photoUrls,
+          description,
+          category,
+          serviceName: selectedService?.name || null,
+        });
+        aiResult = aiResponse.data.data;
+      } catch (aiError) {
+        console.error('AI analysis failed, using fallback:', aiError);
+      }
+
       // Simple geocoding - default to Seoul City Hall coordinates
-      // In production, use Kakao Local API or Google Geocoding API
       const latitude = 37.5665;
       const longitude = 126.9780;
 
@@ -125,52 +138,55 @@ function AIEstimate() {
       const requestData = {
         serviceId: selectedService?.id || null,
         address: address,
-        addressDetail: '', // 상세 주소는 매칭 확정 후 입력
+        addressDetail: '',
         latitude: latitude,
         longitude: longitude,
         description: description || '사진을 참고해주세요',
         photoUrls: photoUrls,
         requestType: 'ASAP',
-        category: category // Include category for requests without serviceId
+        category: category
       };
 
       const response = await serviceRequestAPI.create(requestData);
       const serviceRequest = response.data.data;
 
-      // Create estimate result from service request
+      // Build estimate result from AI + service request
+      const avgCost = aiResult
+        ? Math.round((aiResult.estimatedMinCost + aiResult.estimatedMaxCost) / 2)
+        : serviceRequest.estimatedCost;
+
       const estimate = {
         requestId: serviceRequest.id,
         requestNumber: serviceRequest.requestNumber,
+        summary: aiResult?.summary || null,
         estimatedCost: {
-          min: Math.floor(serviceRequest.estimatedCost * 0.8),
-          max: Math.ceil(serviceRequest.estimatedCost * 1.2),
-          average: serviceRequest.estimatedCost
+          min: aiResult?.estimatedMinCost ?? Math.floor(serviceRequest.estimatedCost * 0.8),
+          max: aiResult?.estimatedMaxCost ?? Math.ceil(serviceRequest.estimatedCost * 1.2),
+          average: avgCost,
         },
-        laborCost: Math.floor(serviceRequest.estimatedCost * 0.6),
-        materialCost: Math.floor(serviceRequest.estimatedCost * 0.4),
-        estimatedTime: selectedService
+        laborCost: Math.floor(avgCost * 0.6),
+        materialCost: Math.floor(avgCost * 0.4),
+        estimatedTime: aiResult?.estimatedTime ?? (selectedService
           ? `${Math.floor(selectedService.estimatedDuration / 60)}-${Math.ceil(selectedService.estimatedDuration / 60)}시간`
-          : '현장 확인 후 결정',
-        difficulty: selectedService
+          : '현장 확인 후 결정'),
+        difficulty: aiResult?.difficulty ?? (selectedService
           ? (selectedService.difficulty === 'A' ? '낮음' : selectedService.difficulty === 'B' ? '중간' : '높음')
-          : '현장 확인 필요',
-        urgency: '일반',
-        confidence: selectedService ? 85 : 70,
+          : '현장 확인 필요'),
+        urgency: aiResult?.urgency ?? '일반',
+        confidence: aiResult ? 92 : (selectedService ? 85 : 70),
         serviceName: selectedService?.name || '기타 수리',
-        recommendations: [
+        recommendations: aiResult?.recommendations ?? [
           '전문가 현장 확인 후 정확한 견적 제공',
           '추가 손상 방지를 위해 빠른 조치 권장',
           selectedService
             ? `정품 부품 사용 시 품질 보증 ${selectedService.warrantyDays}일 제공`
-            : '작업 완료 후 품질 보증 제공'
+            : '작업 완료 후 품질 보증 제공',
         ],
-        detectedIssues: [
-          selectedService
-            ? `${selectedService.category} 관련 작업 필요`
-            : '상세 설명 및 사진 기반 작업 필요',
+        detectedIssues: aiResult?.detectedIssues ?? [
+          selectedService ? `${selectedService.category} 관련 작업 필요` : '상세 설명 및 사진 기반 작업 필요',
           '현장 확인 후 추가 작업 필요 여부 판단',
-          '전문 기사님 배정 진행 중'
-        ]
+          '전문 기사님 배정 진행 중',
+        ],
       };
 
       setEstimateResult(estimate);
@@ -491,6 +507,14 @@ function AIEstimate() {
                 )}
               </div>
             </div>
+
+            {/* AI Summary */}
+            {estimateResult.summary && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">AI 분석 요약</h2>
+                <p className="text-gray-700">{estimateResult.summary}</p>
+              </div>
+            )}
 
             {/* Estimated Cost */}
             <div className="bg-white rounded-xl shadow-sm p-6">

@@ -26,6 +26,7 @@
     "multer": "^2.0.2",
     "pdfkit": "^0.17.2",
     "prisma": "^5.22.0",
+    "openai": "^4.77.0",
     "qrcode": "^1.5.4"
   },
   "devDependencies": {

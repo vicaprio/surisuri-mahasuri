@@ -45,6 +45,10 @@ export const uploadAPI = {
   },
 };
 
+export const aiAPI = {
+  analyzeEstimate: (data) => apiClient.post('/ai/estimate', data),
+};
+
 export const technicianAPI = {
   getAll: (params) => apiClient.get('/technicians', { params }),
   getById: (id) => apiClient.get(`/technicians/${id}`),
