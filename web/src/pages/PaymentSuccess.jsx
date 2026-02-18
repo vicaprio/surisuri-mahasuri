@@ -33,18 +33,12 @@ function PaymentSuccess() {
       <div className="max-w-2xl w-full">
         {/* Success Animation */}
         <div className="relative text-center mb-8">
-          {/* Character 3 (문서+세척기) — 결제/보증서 발급 */}
-          <div
-            className="absolute top-0 right-0 hidden sm:block"
-            style={{
-              width: '130px',
-              height: '130px',
-              backgroundImage: "url('/characters.png')",
-              backgroundSize: '300% auto',
-              backgroundPosition: '100% bottom',
-              backgroundRepeat: 'no-repeat',
-              opacity: 0.9,
-            }}
+          {/* Character (문서+세척기) — 결제/보증서 발급 */}
+          <img
+            src="/char-washer.png"
+            alt=""
+            className="absolute top-0 right-0 hidden sm:block pointer-events-none"
+            style={{ height: '130px', width: 'auto', opacity: 0.9 }}
           />
           <div className="inline-flex items-center justify-center w-24 h-24 bg-green-100 rounded-full mb-6 animate-bounce">
             <CheckCircle className="w-16 h-16 text-green-600" />

@@ -342,8 +342,8 @@ function Home() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {features.map((feature, index) => {
-              // 0=드릴(0%), 1=보증서(100%), 2=빠른매칭호스(50%)
-              const charPos = [0, 100, 50][index];
+              // 0=드릴, 1=문서+세척기, 2=배관호스
+              const chars = ['/char-drill.png', '/char-washer.png', '/char-hose.png'];
               return (
                 <div
                   key={index}
@@ -351,17 +351,11 @@ function Home() {
                   style={{ background: 'linear-gradient(135deg, #1a2e5a 0%, #243d6e 100%)' }}
                 >
                   {/* Character decoration — bottom-right */}
-                  <div
-                    className="absolute bottom-0 right-0"
-                    style={{
-                      width: '100px',
-                      height: '100px',
-                      backgroundImage: "url('/characters.png')",
-                      backgroundSize: '300% auto',
-                      backgroundPosition: `${charPos}% bottom`,
-                      backgroundRepeat: 'no-repeat',
-                      opacity: 0.85,
-                    }}
+                  <img
+                    src={chars[index]}
+                    alt=""
+                    className="absolute bottom-0 right-0 pointer-events-none"
+                    style={{ height: '110px', width: 'auto', opacity: 0.9 }}
                   />
                   <div className="relative z-10">
                     <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center mb-5">

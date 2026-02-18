@@ -241,18 +241,12 @@ function MatchingStatus() {
           <div className="space-y-6">
             {/* Success Animation */}
             <div className="relative overflow-hidden bg-white rounded-xl shadow-sm p-8 text-center">
-              {/* Character 1 (드릴) — 매칭 완료 */}
-              <div
-                className="absolute bottom-0 right-4 hidden sm:block"
-                style={{
-                  width: '120px',
-                  height: '120px',
-                  backgroundImage: "url('/characters.png')",
-                  backgroundSize: '300% auto',
-                  backgroundPosition: '0% bottom',
-                  backgroundRepeat: 'no-repeat',
-                  opacity: 0.9,
-                }}
+              {/* Character (드릴) — 매칭 완료 */}
+              <img
+                src="/char-drill.png"
+                alt=""
+                className="absolute bottom-0 right-4 hidden sm:block pointer-events-none"
+                style={{ height: '130px', width: 'auto', opacity: 0.9 }}
               />
               <div className="relative z-10">
                 <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4 animate-bounce">
