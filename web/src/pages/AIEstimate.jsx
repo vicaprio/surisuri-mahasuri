@@ -568,19 +568,6 @@ function AIEstimate() {
                 </div>
               </div>
 
-              {/* Detected Issues */}
-              <div className="mb-6">
-                <h3 className="font-semibold text-gray-900 mb-3">발견된 문제점</h3>
-                <ul className="space-y-2">
-                  {estimateResult.detectedIssues.map((issue, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="w-2 h-2 bg-red-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      <span className="text-gray-700">{issue}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
               {/* Recommendations */}
               <div className="mb-6">
                 <h3 className="font-semibold text-gray-900 mb-3">권장사항</h3>

@@ -113,7 +113,10 @@ function Home() {
               <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-800 rounded-lg flex items-center justify-center">
                 <Wrench className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-primary-900 dark:text-primary-100">마하수리</span>
+              <div className="flex flex-col items-start leading-tight">
+                <span className="text-xs font-medium text-primary-500 dark:text-primary-400">수리수리</span>
+                <span className="text-xl font-bold text-primary-900 dark:text-primary-100">마하수리</span>
+              </div>
             </button>
 
             {/* Desktop Navigation */}
@@ -163,12 +166,12 @@ function Home() {
                 <div className="flex items-center space-x-4">
                   <NotificationDropdown />
                   <div className="flex items-center space-x-2">
-                    <User className="w-5 h-5 text-gray-600" />
-                    <span className="text-gray-700 font-medium">{user.name}</span>
+                    <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <span className="text-gray-700 dark:text-gray-200 font-medium">{user.name}</span>
                   </div>
                   <button
                     onClick={logout}
-                    className="flex items-center px-4 py-2 text-gray-700 hover:text-red-600 transition-colors"
+                    className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-red-600 transition-colors"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     로그아웃
@@ -253,8 +256,8 @@ function Home() {
                 {user ? (
                   <>
                     <div className="flex items-center space-x-2 px-4 py-2">
-                      <User className="w-5 h-5 text-gray-600" />
-                      <span className="text-gray-700 font-medium">{user.name}</span>
+                      <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      <span className="text-gray-700 dark:text-gray-200 font-medium">{user.name}</span>
                     </div>
                     <button
                       onClick={() => {
@@ -292,8 +295,8 @@ function Home() {
             <span className="block text-primary-600">정찰제로 안심하세요</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            사진 한 장으로 AI가 예상 견적을 즉시 산출합니다.
-            바가지 걱정 없는 투명한 집수리 플랫폼, 마하수리
+            사진 한 장으로 AI가 예상 견적을 즉시 제공.
+            근처 집수리 기술자 매칭 플랫폼. 마하수리
           </p>
           <button
             onClick={() => navigate('/estimate')}
