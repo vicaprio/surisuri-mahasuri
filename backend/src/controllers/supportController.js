@@ -1,6 +1,13 @@
 const OpenAI = require('openai');
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Lazy initialization - avoid crash if OPENAI_API_KEY is not set at startup
+let _openai = null;
+const getOpenAI = () => {
+  if (!_openai) {
+    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return _openai;
+};
 
 const SYSTEM_PROMPT = `당신은 마하수리(수리수리 마하수리) 고객지원 AI 어시스턴트입니다.
 마하수리는 한국의 집수리 전문 플랫폼으로 사진 한 장으로 AI 예상 견적을 즉시 제공하고 근처 전문 기사님을 매칭해주는 서비스입니다.
@@ -52,7 +59,7 @@ exports.supportChat = async (req, res) => {
       });
     }
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
