@@ -182,14 +182,10 @@ function TechnicianDashboard() {
               </span>
             </button>
             <button
-              onClick={() => setActiveTab('map')}
-              className={`py-4 px-2 font-medium transition-colors ${
-                activeTab === 'map'
-                  ? 'text-primary-600 border-b-2 border-primary-600'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+              onClick={() => navigate('/map')}
+              className="py-4 px-2 font-medium text-gray-500 hover:text-primary-600 transition-colors"
             >
-              지도 보기
+              🗺️ 지도 보기
             </button>
           </div>
         </div>
@@ -312,7 +308,7 @@ function TechnicianDashboard() {
                       채팅하기
                     </button>
                     <button
-                      onClick={() => alert('지도를 엽니다...')}
+                      onClick={() => navigate('/map')}
                       className="py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center"
                     >
                       <Navigation className="w-4 h-4 mr-2" />
@@ -340,40 +336,6 @@ function TechnicianDashboard() {
           </div>
         )}
 
-        {/* Map Tab */}
-        {activeTab === 'map' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="aspect-[16/9] bg-gray-200 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 font-medium">지도 뷰 (구현 예정)</p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    실시간으로 주변 일감 위치를 확인할 수 있습니다
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {availableJobs.slice(0, 4).map((job) => (
-                <div
-                  key={job.id}
-                  className="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow cursor-pointer"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-gray-900">{job.category}</h4>
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                      {job.distance}km
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-2">{job.description}</p>
-                  <p className="text-sm text-gray-500">{job.location}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {chatRoom && (

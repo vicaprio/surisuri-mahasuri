@@ -19,6 +19,7 @@ const matchRoutes = require('./routes/matchRoutes');
 const aiRoutes = require('./routes/ai');
 const chatRoutes = require('./routes/chat');
 const supportRoutes = require('./routes/support');
+const mapRoutes     = require('./routes/map');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -82,6 +83,7 @@ app.use('/api/matches', matchRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/map',     mapRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
