@@ -25,6 +25,19 @@ EOF
 
 echo "Written env vars to .env file"
 
+# Generate Prisma client (ensures binary is compatible with runtime container)
+echo "Generating Prisma client..."
+DATABASE_URL="$DATABASE_URL" npx prisma generate
+echo "Prisma client generated"
+
+# Download Korean font for PDF warranty generation
+mkdir -p src/fonts
+if [ ! -f src/fonts/NanumGothic.ttf ]; then
+  echo "Downloading Korean font..."
+  wget -q -O src/fonts/NanumGothic.ttf "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf" || echo "Font download failed, PDF will use fallback font"
+  echo "Font ready"
+fi
+
 # Run Prisma migrations
 DATABASE_URL="$DATABASE_URL" npx prisma migrate deploy
 
