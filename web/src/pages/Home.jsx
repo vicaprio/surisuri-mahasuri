@@ -295,8 +295,8 @@ function Home() {
             <span className="block text-primary-600">정찰제로 안심하세요</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            사진 한 장으로 AI가 예상 견적을 즉시 제공.
-            근처 집수리 기술자 매칭 플랫폼. 마하수리
+            사진 한 장으로 AI 예상 견적 즉시 제공.
+            근처 집수리 기술자 매칭 플랫폼
           </p>
           <button
             onClick={() => navigate('/estimate')}
