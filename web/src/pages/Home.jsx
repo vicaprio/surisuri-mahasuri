@@ -351,15 +351,15 @@ function Home() {
               <button
                 key={index}
                 onClick={() => navigate('/estimate', { state: { category: category.name } })}
-                className={`${category.color} p-6 rounded-2xl shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1 text-left`}
+                className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 text-left"
               >
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4">
+                <div className={`w-12 h-12 ${category.color} rounded-xl flex items-center justify-center mb-4`}>
                   <IconComponent className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
                   {category.name}
                 </h3>
-                <p className="text-sm text-white/80">{category.description}</p>
+                <p className="text-sm text-gray-500">{category.description}</p>
               </button>
             );
           })}
