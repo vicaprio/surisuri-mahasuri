@@ -27,5 +27,10 @@ echo "Written env vars to .env file"
 # Run Prisma migrations
 DATABASE_URL="$DATABASE_URL" npx prisma migrate deploy
 
+# Run seed (upsert 방식이므로 중복 실행 안전)
+echo "Running seed..."
+DATABASE_URL="$DATABASE_URL" node prisma/seed.js
+echo "Seed complete"
+
 # Start the server
 node src/index.js
