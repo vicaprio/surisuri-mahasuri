@@ -292,13 +292,13 @@ function Home() {
       {/* Hero Section */}
       <section
         className="relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #0f1e3d 0%, #1a2e5a 60%, #1e3a6e 100%)', minHeight: '252px' }}
+        style={{ background: 'linear-gradient(135deg, #0f1e3d 0%, #1a2e5a 60%, #1e3a6e 100%)' }}
       >
-        {/* Vehicle image — transparent PNG, anchored bottom-right, height fills section */}
+        {/* Desktop: vehicle absolute right, fills section height */}
         <img
           src="/회사차량.png"
           alt="마하수리 차량"
-          className="absolute hidden md:block"
+          className="hidden md:block absolute"
           style={{
             bottom: 0,
             right: 0,
@@ -309,12 +309,12 @@ function Home() {
           }}
         />
 
-        {/* Left: Text Content */}
+        {/* Text Content */}
         <div
           className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center"
           style={{ minHeight: '252px' }}
         >
-          <div className="py-12 md:py-16" style={{ maxWidth: '480px' }}>
+          <div className="py-10 md:py-16" style={{ maxWidth: '480px' }}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
               집수리, 이제는
               <span className="block text-accent-400">정찰제로 안심하세요</span>
@@ -331,6 +331,16 @@ function Home() {
               <ChevronRight className="w-5 h-5 ml-1" />
             </button>
           </div>
+        </div>
+
+        {/* Mobile: vehicle below text, full width */}
+        <div className="md:hidden w-full">
+          <img
+            src="/회사차량.png"
+            alt="마하수리 차량"
+            className="w-full object-contain"
+            style={{ pointerEvents: 'none' }}
+          />
         </div>
       </section>
 
