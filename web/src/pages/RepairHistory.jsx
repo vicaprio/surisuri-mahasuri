@@ -15,8 +15,10 @@ import {
   Loader2,
   Download,
   Star,
-  Edit
+  Edit,
+  MessageSquare
 } from 'lucide-react';
+import ChatModal from '../components/ChatModal';
 
 function RepairHistory() {
   const navigate = useNavigate();
@@ -24,6 +26,7 @@ function RepairHistory() {
   const [filter, setFilter] = useState('all');
   const [repairs, setRepairs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [chatRoom, setChatRoom] = useState(null); // { roomId, title }
 
   useEffect(() => {
     const loadRepairs = async () => {
@@ -346,6 +349,13 @@ function RepairHistory() {
 
                     <div className="flex space-x-2">
                       <button
+                        onClick={() => setChatRoom({ roomId: String(repair.id), title: `${repair.category} 채팅` })}
+                        className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        <span>채팅하기</span>
+                      </button>
+                      <button
                         onClick={() => handleDownloadWarranty(repair.id)}
                         className="flex-1 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center space-x-2"
                       >
@@ -370,6 +380,16 @@ function RepairHistory() {
           )}
         </div>
       </div>
+
+      {chatRoom && (
+        <ChatModal
+          roomId={chatRoom.roomId}
+          senderType="customer"
+          senderName={user?.name || '고객'}
+          title={chatRoom.title}
+          onClose={() => setChatRoom(null)}
+        />
+      )}
     </div>
   );
 }

@@ -17,6 +17,7 @@ const reviewRoutes = require('./routes/reviews');
 const oauthRoutes = require('./routes/oauthRoutes');
 const matchRoutes = require('./routes/matchRoutes');
 const aiRoutes = require('./routes/ai');
+const chatRoutes = require('./routes/chat');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -78,6 +79,7 @@ app.use('/api/warranties', warrantyRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

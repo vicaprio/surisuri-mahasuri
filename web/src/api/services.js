@@ -45,6 +45,11 @@ export const uploadAPI = {
   },
 };
 
+export const chatAPI = {
+  getMessages: (roomId) => apiClient.get(`/chat/${roomId}`),
+  sendMessage: (roomId, data) => apiClient.post(`/chat/${roomId}`, data),
+};
+
 export const aiAPI = {
   analyzeEstimate: (data) => apiClient.post('/ai/estimate', data),
 };

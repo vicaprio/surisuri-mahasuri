@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ChatModal from '../components/ChatModal';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -18,6 +19,7 @@ import {
 function TechnicianDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, jobs, map
+  const [chatRoom, setChatRoom] = useState(null);
 
   // Mock data
   const stats = {
@@ -294,24 +296,31 @@ function TechnicianDashboard() {
                     </div>
                   </div>
 
-                  <div className="flex space-x-3">
+                  <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => alert('고객에게 전화를 겁니다...')}
-                      className="flex-1 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center"
+                      className="py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center"
                     >
                       <Phone className="w-4 h-4 mr-2" />
                       전화하기
                     </button>
                     <button
+                      onClick={() => setChatRoom({ roomId: String(job.id), title: `${job.category} 채팅` })}
+                      className="py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center"
+                    >
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      채팅하기
+                    </button>
+                    <button
                       onClick={() => alert('지도를 엽니다...')}
-                      className="flex-1 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center"
+                      className="py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center"
                     >
                       <Navigation className="w-4 h-4 mr-2" />
                       길찾기
                     </button>
                     <button
                       onClick={() => handleAcceptJob(job.id)}
-                      className="flex-1 py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 transition-colors flex items-center justify-center"
+                      className="py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 transition-colors flex items-center justify-center"
                     >
                       <CheckCircle className="w-4 h-4 mr-2" />
                       수락하기
@@ -366,6 +375,16 @@ function TechnicianDashboard() {
           </div>
         )}
       </div>
+
+      {chatRoom && (
+        <ChatModal
+          roomId={chatRoom.roomId}
+          senderType="technician"
+          senderName="기사님"
+          title={chatRoom.title}
+          onClose={() => setChatRoom(null)}
+        />
+      )}
     </div>
   );
 }

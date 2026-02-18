@@ -214,6 +214,18 @@ model TechnicianSkill {
   @@index([serviceId])
 }
 
+model Message {
+  id         String   @id @default(uuid())
+  roomId     String
+  senderType String
+  senderName String
+  content    String
+  createdAt  DateTime @default(now())
+
+  @@index([roomId])
+  @@index([createdAt])
+}
+
 model ServiceRequestMatch {
   id               String         @id @default(uuid())
   serviceRequestId String
