@@ -61,8 +61,8 @@ function RepairHistory() {
       technician: '김기사',
       location: '서울시 강남구 테헤란로 123',
       warrantyUntil: '2027-02-10',
-      beforeImage: 'https://placehold.co/150x150',
-      afterImage: 'https://placehold.co/150x150'
+      beforeImage: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=640&h=360&fit=crop',
+      afterImage: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=640&h=360&fit=crop'
     },
     {
       id: 2,
@@ -74,8 +74,8 @@ function RepairHistory() {
       technician: '이기사',
       location: '서울시 강남구 테헤란로 123',
       warrantyUntil: '2027-01-28',
-      beforeImage: 'https://placehold.co/150x150',
-      afterImage: 'https://placehold.co/150x150'
+      beforeImage: 'https://images.unsplash.com/photo-1513506003901-1e6a35f91a81?w=640&h=360&fit=crop',
+      afterImage: 'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=640&h=360&fit=crop'
     },
     {
       id: 3,
@@ -87,8 +87,8 @@ function RepairHistory() {
       technician: '박기사',
       location: '서울시 강남구 테헤란로 123',
       warrantyUntil: '2027-01-15',
-      beforeImage: 'https://placehold.co/150x150',
-      afterImage: 'https://placehold.co/150x150'
+      beforeImage: 'https://images.unsplash.com/photo-1631567091196-4b6de6e8bf86?w=640&h=360&fit=crop',
+      afterImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=640&h=360&fit=crop'
     }
   ];
 
@@ -306,30 +306,23 @@ function RepairHistory() {
                   {/* Before/After Images */}
                   {(repair.beforeImage || repair.photoUrls) && (
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <p className="text-xs text-gray-500 mb-2">수리 전</p>
-                        {repair.beforeImage || (repair.photoUrls && repair.photoUrls[0]) ? (
-                          <img
-                            src={`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}${repair.beforeImage || repair.photoUrls[0]}`}
-                            alt="수리 전"
-                            className="w-full aspect-video object-cover bg-gray-200 rounded-lg"
-                          />
-                        ) : (
-                          <div className="aspect-video bg-gray-200 rounded-lg"></div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 mb-2">수리 후</p>
-                        {repair.afterImage || (repair.photoUrls && repair.photoUrls[1]) ? (
-                          <img
-                            src={`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}${repair.afterImage || repair.photoUrls[1]}`}
-                            alt="수리 후"
-                            className="w-full aspect-video object-cover bg-gray-200 rounded-lg"
-                          />
-                        ) : (
-                          <div className="aspect-video bg-gray-200 rounded-lg"></div>
-                        )}
-                      </div>
+                      {[
+                        { url: repair.beforeImage || repair.photoUrls?.[0], label: '수리 전' },
+                        { url: repair.afterImage  || repair.photoUrls?.[1], label: '수리 후' },
+                      ].map(({ url, label }) => (
+                        <div key={label}>
+                          <p className="text-xs text-gray-500 mb-2">{label}</p>
+                          {url ? (
+                            <img
+                              src={url.startsWith('http') ? url : `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}${url}`}
+                              alt={label}
+                              className="w-full aspect-video object-cover bg-gray-200 rounded-lg"
+                            />
+                          ) : (
+                            <div className="aspect-video bg-gray-200 rounded-lg" />
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
 
