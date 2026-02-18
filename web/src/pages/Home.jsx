@@ -294,17 +294,20 @@ function Home() {
         className="relative overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #0f1e3d 0%, #1a2e5a 60%, #1e3a6e 100%)', minHeight: '360px' }}
       >
-        {/* Vehicle image — right side, fills full section height */}
-        <div
-          className="absolute inset-y-0 right-0 hidden md:block"
-          style={{ width: '58%' }}
-        >
-          <img
-            src="/회사차량.png"
-            alt="마하수리 차량"
-            className="h-full w-full object-contain object-right-bottom"
-          />
-        </div>
+        {/* Vehicle image — transparent PNG, anchored bottom-right, height fills section */}
+        <img
+          src="/회사차량.png"
+          alt="마하수리 차량"
+          className="absolute hidden md:block"
+          style={{
+            bottom: 0,
+            right: 0,
+            height: '100%',
+            width: 'auto',
+            maxWidth: '62%',
+            pointerEvents: 'none',
+          }}
+        />
 
         {/* Left: Text Content */}
         <div
