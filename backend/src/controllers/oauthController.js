@@ -407,9 +407,7 @@ exports.googleAuth = async (req, res) => {
 
     console.log('Google OAuth request received');
     console.log('Code:', code ? `${code.substring(0, 20)}...` : 'missing');
-    console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? `${process.env.GOOGLE_CLIENT_ID.substring(0, 20)}... (length: ${process.env.GOOGLE_CLIENT_ID.length})` : 'MISSING');
-    console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? `set (length: ${process.env.GOOGLE_CLIENT_SECRET.length})` : 'MISSING');
-    console.log('Redirect URI:', process.env.GOOGLE_REDIRECT_URI || 'MISSING');
+    console.log('Redirect URI:', process.env.GOOGLE_REDIRECT_URI);
 
     // Exchange code for access token
     const tokenResponse = await axios.post(
