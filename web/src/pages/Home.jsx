@@ -341,21 +341,40 @@ function Home() {
             왜 마하수리인가요?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="p-8 rounded-2xl hover:opacity-90 transition-opacity"
-                style={{ background: 'linear-gradient(135deg, #1a2e5a 0%, #243d6e 100%)' }}
-              >
-                <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center mb-5">
-                  <feature.icon className="w-7 h-7 text-white" />
+            {features.map((feature, index) => {
+              // 0=드릴(0%), 1=보증서(100%), 2=빠른매칭호스(50%)
+              const charPos = [0, 100, 50][index];
+              return (
+                <div
+                  key={index}
+                  className="relative overflow-hidden p-8 rounded-2xl hover:opacity-90 transition-opacity"
+                  style={{ background: 'linear-gradient(135deg, #1a2e5a 0%, #243d6e 100%)' }}
+                >
+                  {/* Character decoration — bottom-right */}
+                  <div
+                    className="absolute bottom-0 right-0"
+                    style={{
+                      width: '100px',
+                      height: '100px',
+                      backgroundImage: "url('/characters.png')",
+                      backgroundSize: '300% auto',
+                      backgroundPosition: `${charPos}% bottom`,
+                      backgroundRepeat: 'no-repeat',
+                      opacity: 0.85,
+                    }}
+                  />
+                  <div className="relative z-10">
+                    <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center mb-5">
+                      <feature.icon className="w-7 h-7 text-white" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-white mb-2">
+                      {feature.title}
+                    </h3>
+                    <p className="text-blue-300 text-sm">{feature.description}</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-blue-300 text-sm">{feature.description}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

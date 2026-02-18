@@ -240,16 +240,31 @@ function MatchingStatus() {
         {matchStatus?.status === 'MATCHED' && matchStatus.technician && (
           <div className="space-y-6">
             {/* Success Animation */}
-            <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4 animate-bounce">
-                <CheckCircle className="w-12 h-12 text-green-600" />
+            <div className="relative overflow-hidden bg-white rounded-xl shadow-sm p-8 text-center">
+              {/* Character 1 (드릴) — 매칭 완료 */}
+              <div
+                className="absolute bottom-0 right-4 hidden sm:block"
+                style={{
+                  width: '120px',
+                  height: '120px',
+                  backgroundImage: "url('/characters.png')",
+                  backgroundSize: '300% auto',
+                  backgroundPosition: '0% bottom',
+                  backgroundRepeat: 'no-repeat',
+                  opacity: 0.9,
+                }}
+              />
+              <div className="relative z-10">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4 animate-bounce">
+                  <CheckCircle className="w-12 h-12 text-green-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                  전문가 매칭 완료! 🎉
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  전문가가 곧 연락드릴 예정입니다.
+                </p>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                전문가 매칭 완료! 🎉
-              </h2>
-              <p className="text-gray-600 mb-6">
-                전문가가 곧 연락드릴 예정입니다.
-              </p>
             </div>
 
             {/* Matched Technician Card */}
