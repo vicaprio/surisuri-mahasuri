@@ -59,6 +59,10 @@ export const technicianAPI = {
   getById: (id) => apiClient.get(`/technicians/${id}`),
 };
 
+export const supportAPI = {
+  chat: (messages) => apiClient.post('/support/chat', { messages }),
+};
+
 export const reviewAPI = {
   create: (data) => apiClient.post('/reviews', data),
   getByServiceRequest: (serviceRequestId) => apiClient.get(`/reviews/service-request/${serviceRequestId}`),

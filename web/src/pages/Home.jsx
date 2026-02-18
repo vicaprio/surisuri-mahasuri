@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import NotificationDropdown from '../components/NotificationDropdown';
+import SupportChatModal from '../components/SupportChatModal';
 import {
   Wrench,
   Droplet,
@@ -29,6 +30,7 @@ function Home() {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
+  const [showSupport, setShowSupport] = useState(false);
 
   const categories = [
     { name: '전기/조명', icon: Zap, color: 'bg-yellow-500', description: '콘센트, 스위치, 조명 등' },
@@ -430,7 +432,7 @@ function Home() {
               더 궁금하신 점이 있으신가요?
             </p>
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => setShowSupport(true)}
               className="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors"
             >
               1:1 문의하기
@@ -467,7 +469,7 @@ function Home() {
               <h4 className="font-semibold text-white mb-4">고객지원</h4>
               <ul className="space-y-2 text-sm">
                 <li><button className="hover:text-white">자주 묻는 질문</button></li>
-                <li><button className="hover:text-white">1:1 문의</button></li>
+                <li><button onClick={() => setShowSupport(true)} className="hover:text-white">1:1 문의</button></li>
                 <li><button onClick={() => navigate('/terms')} className="hover:text-white">이용약관</button></li>
               </ul>
             </div>
@@ -484,6 +486,10 @@ function Home() {
           </div>
         </div>
       </footer>
+
+      {showSupport && (
+        <SupportChatModal onClose={() => setShowSupport(false)} />
+      )}
     </div>
   );
 }
