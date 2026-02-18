@@ -74,11 +74,11 @@ exports.supportChat = async (req, res) => {
 
     res.json({ success: true, data: { reply, needsEscalation } });
   } catch (error) {
-    console.error('Support chat error:', error);
+    console.error('Support chat error:', error?.status, error?.message, error?.code);
     res.json({
       success: true,
       data: {
-        reply: '죄송합니다. 일시적인 오류가 발생했습니다. 고객센터(1588-0000)로 연락해 주시거나 support@mahasuri.com으로 문의해 주세요.',
+        reply: `[DEBUG] 오류: ${error?.status || ''} ${error?.message || error?.toString()}`,
         needsEscalation: true,
       },
     });
