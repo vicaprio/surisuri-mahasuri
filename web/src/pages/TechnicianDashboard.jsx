@@ -10,7 +10,6 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  Navigation,
   Phone,
   MessageSquare,
   Calendar
@@ -181,12 +180,6 @@ function TechnicianDashboard() {
                 {availableJobs.length}
               </span>
             </button>
-            <button
-              onClick={() => navigate('/map')}
-              className="py-4 px-2 font-medium text-gray-500 hover:text-primary-600 transition-colors"
-            >
-              🗺️ 지도 보기
-            </button>
           </div>
         </div>
       </div>
@@ -292,7 +285,7 @@ function TechnicianDashboard() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <button
                       onClick={() => alert('고객에게 전화를 겁니다...')}
                       className="py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center"
@@ -306,13 +299,6 @@ function TechnicianDashboard() {
                     >
                       <MessageSquare className="w-4 h-4 mr-2" />
                       채팅하기
-                    </button>
-                    <button
-                      onClick={() => navigate('/map')}
-                      className="py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center"
-                    >
-                      <Navigation className="w-4 h-4 mr-2" />
-                      길찾기
                     </button>
                     <button
                       onClick={() => handleAcceptJob(job.id)}

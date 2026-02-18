@@ -15,7 +15,6 @@ import WriteReview from './pages/WriteReview';
 import OAuthCallback from './pages/OAuthCallback';
 import TermsOfService from './pages/TermsOfService';
 import MatchingStatus from './pages/MatchingStatus';
-import MapView from './pages/MapView';
 
 function App() {
   return (
@@ -38,7 +37,6 @@ function App() {
                 <Route path="/review/write" element={<WriteReview />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/matching-status" element={<MatchingStatus />} />
-                <Route path="/map" element={<MapView />} />
               </Routes>
             </div>
           </Router>
