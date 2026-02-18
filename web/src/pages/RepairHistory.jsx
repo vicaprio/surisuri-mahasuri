@@ -143,7 +143,7 @@ function RepairHistory() {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Download warranty error:', error);
-      alert('하자이행보증서 다운로드에 실패했습니다.');
+      alert('하자보증보험증권 다운로드에 실패했습니다.');
     }
   };
 
@@ -360,7 +360,7 @@ function RepairHistory() {
                         className="flex-1 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center space-x-2"
                       >
                         <Download className="w-4 h-4" />
-                        <span>하자이행보증서</span>
+                        <span>하자보증보험증권</span>
                       </button>
 
                       {repair.status === 'completed' && (

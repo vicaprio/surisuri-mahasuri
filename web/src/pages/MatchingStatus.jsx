@@ -322,7 +322,7 @@ function MatchingStatus() {
                 </li>
                 <li className="flex items-start">
                   <span className="font-semibold mr-2">3.</span>
-                  <span>작업 완료 후 디지털 하자이행보증서가 발급됩니다.</span>
+                  <span>작업 완료 후 디지털 하자보증보험증권이 발급됩니다.</span>
                 </li>
               </ul>
             </div>
