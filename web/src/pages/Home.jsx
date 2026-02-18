@@ -50,7 +50,7 @@ function Home() {
     {
       icon: Shield,
       title: '디지털 하자보증보험증권',
-      description: '플랫폼이 보증하는 AS 및 정품 인증'
+      description: 'AS 보증 및 정품 인증'
     },
     {
       icon: Clock,
