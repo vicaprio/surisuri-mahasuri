@@ -103,7 +103,7 @@ function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-200">
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -290,24 +290,39 @@ function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-        <div className="text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-            집수리, 이제는
-            <span className="block text-primary-600">정찰제로 안심하세요</span>
-          </h1>
-          <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            사진 한 장으로 AI 예상 견적 즉시 제공.
-            근처 집수리 기술자 매칭 플랫폼
-          </p>
-          <button
-            onClick={() => navigate('/estimate')}
-            className="inline-flex items-center px-8 py-4 bg-accent-500 text-white text-lg font-semibold rounded-xl hover:bg-accent-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-          >
-            <Camera className="w-6 h-6 mr-2" />
-            AI 견적 받기
-            <ChevronRight className="w-5 h-5 ml-1" />
-          </button>
+      <section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f1e3d 0%, #1a2e5a 60%, #1e3a6e 100%)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-end min-h-[320px] md:min-h-[420px]">
+            {/* Left: Text Content */}
+            <div className="flex-1 py-12 md:py-16 z-10 relative">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+                집수리, 이제는
+                <span className="block text-accent-400">정찰제로 안심하세요</span>
+              </h1>
+              <p className="text-base md:text-lg text-blue-200 mb-8 max-w-md">
+                사진 한 장으로 AI 예상 견적 즉시 제공.<br />
+                근처 집수리 기술자 매칭 플랫폼
+              </p>
+              <button
+                onClick={() => navigate('/estimate')}
+                className="inline-flex items-center px-8 py-4 bg-accent-500 text-white text-lg font-semibold rounded-xl hover:bg-accent-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <Camera className="w-6 h-6 mr-2" />
+                AI 견적 받기
+                <ChevronRight className="w-5 h-5 ml-1" />
+              </button>
+            </div>
+
+            {/* Right: Vehicle Image */}
+            <div className="hidden md:flex flex-shrink-0 items-end" style={{ width: '55%', maxWidth: '680px' }}>
+              <img
+                src="/회사차량.png"
+                alt="마하수리 차량"
+                className="w-full object-contain object-bottom"
+                style={{ maxHeight: '380px' }}
+              />
+            </div>
+          </div>
         </div>
       </section>
 
