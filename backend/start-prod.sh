@@ -3,8 +3,28 @@ set -e
 
 echo "Starting production server..."
 echo "DATABASE_URL length: ${#DATABASE_URL}"
+echo "GOOGLE_CLIENT_ID length in shell: ${#GOOGLE_CLIENT_ID}"
 
-# Run Prisma migrations with explicit URL
+# Write all Railway env vars to .env so dotenv can load them
+cat > .env << EOF
+DATABASE_URL=${DATABASE_URL}
+JWT_SECRET=${JWT_SECRET}
+NODE_ENV=${NODE_ENV}
+PORT=${PORT}
+GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
+KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
+KAKAO_REDIRECT_URI=${KAKAO_REDIRECT_URI}
+NAVER_CLIENT_ID=${NAVER_CLIENT_ID}
+NAVER_CLIENT_SECRET=${NAVER_CLIENT_SECRET}
+NAVER_REDIRECT_URI=${NAVER_REDIRECT_URI}
+EOF
+
+echo "Written env vars to .env file"
+
+# Run Prisma migrations
 DATABASE_URL="$DATABASE_URL" npx prisma migrate deploy
 
 # Start the server
