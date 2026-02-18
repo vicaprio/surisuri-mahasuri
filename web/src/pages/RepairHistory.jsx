@@ -49,6 +49,34 @@ function RepairHistory() {
     loadRepairs();
   }, [user, navigate]);
 
+  // Sample before/after images per category (picsum.photos — no API key needed)
+  const sampleImages = {
+    '배관/수도': {
+      before: 'https://picsum.photos/seed/plumbing-b/640/360',
+      after:  'https://picsum.photos/seed/plumbing-a/640/360',
+    },
+    '전기/조명': {
+      before: 'https://picsum.photos/seed/electric-b/640/360',
+      after:  'https://picsum.photos/seed/electric-a/640/360',
+    },
+    '에어컨': {
+      before: 'https://picsum.photos/seed/aircon-b/640/360',
+      after:  'https://picsum.photos/seed/aircon-a/640/360',
+    },
+    '도배/장판': {
+      before: 'https://picsum.photos/seed/wallpaper-b/640/360',
+      after:  'https://picsum.photos/seed/wallpaper-a/640/360',
+    },
+    '목공/가구': {
+      before: 'https://picsum.photos/seed/wood-b/640/360',
+      after:  'https://picsum.photos/seed/wood-a/640/360',
+    },
+    default: {
+      before: 'https://picsum.photos/seed/repair-b/640/360',
+      after:  'https://picsum.photos/seed/repair-a/640/360',
+    },
+  };
+
   // Mock data for demo (remove when API returns data)
   const mockRepairs = [
     {
@@ -61,8 +89,6 @@ function RepairHistory() {
       technician: '김기사',
       location: '서울시 강남구 테헤란로 123',
       warrantyUntil: '2027-02-10',
-      beforeImage: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=640&h=360&fit=crop',
-      afterImage: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=640&h=360&fit=crop'
     },
     {
       id: 2,
@@ -74,8 +100,6 @@ function RepairHistory() {
       technician: '이기사',
       location: '서울시 강남구 테헤란로 123',
       warrantyUntil: '2027-01-28',
-      beforeImage: 'https://images.unsplash.com/photo-1513506003901-1e6a35f91a81?w=640&h=360&fit=crop',
-      afterImage: 'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=640&h=360&fit=crop'
     },
     {
       id: 3,
@@ -87,13 +111,18 @@ function RepairHistory() {
       technician: '박기사',
       location: '서울시 강남구 테헤란로 123',
       warrantyUntil: '2027-01-15',
-      beforeImage: 'https://images.unsplash.com/photo-1631567091196-4b6de6e8bf86?w=640&h=360&fit=crop',
-      afterImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=640&h=360&fit=crop'
     }
   ];
 
   // Use real data if available, otherwise use mock data
-  const allRepairs = repairs.length > 0 ? repairs : mockRepairs;
+  // For each repair, attach sample images if no real images exist
+  const withImages = (list) => list.map(r => {
+    if (r.beforeImage || r.photoUrls?.length) return r;
+    const imgs = sampleImages[r.category] || sampleImages.default;
+    return { ...r, beforeImage: imgs.before, afterImage: imgs.after };
+  });
+
+  const allRepairs = withImages(repairs.length > 0 ? repairs : mockRepairs);
 
   const filteredRepairs = allRepairs.filter(repair => {
     if (filter === 'all') return true;
