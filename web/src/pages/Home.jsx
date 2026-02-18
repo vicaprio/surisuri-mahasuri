@@ -290,61 +290,67 @@ function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f1e3d 0%, #1a2e5a 60%, #1e3a6e 100%)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end min-h-[320px] md:min-h-[420px]">
-            {/* Left: Text Content */}
-            <div className="flex-1 py-12 md:py-16 z-10 relative">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-                집수리, 이제는
-                <span className="block text-accent-400">정찰제로 안심하세요</span>
-              </h1>
-              <p className="text-base md:text-lg text-blue-200 mb-8 max-w-md">
-                사진 한 장으로 AI 예상 견적 즉시 제공.<br />
-                근처 집수리 기술자 매칭 플랫폼
-              </p>
-              <button
-                onClick={() => navigate('/estimate')}
-                className="inline-flex items-center px-8 py-4 bg-accent-500 text-white text-lg font-semibold rounded-xl hover:bg-accent-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <Camera className="w-6 h-6 mr-2" />
-                AI 견적 받기
-                <ChevronRight className="w-5 h-5 ml-1" />
-              </button>
-            </div>
+      <section
+        className="relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #0f1e3d 0%, #1a2e5a 60%, #1e3a6e 100%)', minHeight: '360px' }}
+      >
+        {/* Vehicle image — right side, fills full section height */}
+        <div
+          className="absolute inset-y-0 right-0 hidden md:block"
+          style={{ width: '58%' }}
+        >
+          <img
+            src="/회사차량.png"
+            alt="마하수리 차량"
+            className="h-full w-full object-contain object-right-bottom"
+          />
+        </div>
 
-            {/* Right: Vehicle Image */}
-            <div className="hidden md:flex flex-shrink-0 items-end" style={{ width: '55%', maxWidth: '680px' }}>
-              <img
-                src="/회사차량.png"
-                alt="마하수리 차량"
-                className="w-full object-contain object-bottom"
-                style={{ maxHeight: '380px' }}
-              />
-            </div>
+        {/* Left: Text Content */}
+        <div
+          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center"
+          style={{ minHeight: '360px' }}
+        >
+          <div className="py-12 md:py-16" style={{ maxWidth: '480px' }}>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+              집수리, 이제는
+              <span className="block text-accent-400">정찰제로 안심하세요</span>
+            </h1>
+            <p className="text-base md:text-lg text-blue-200 mb-8">
+              사진 한 장으로 AI 예상 견적 즉시 제공. 근처 집수리 기술자 매칭 플랫폼
+            </p>
+            <button
+              onClick={() => navigate('/estimate')}
+              className="inline-flex items-center px-8 py-4 bg-accent-500 text-white text-lg font-semibold rounded-xl hover:bg-accent-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              <Camera className="w-6 h-6 mr-2" />
+              AI 견적 받기
+              <ChevronRight className="w-5 h-5 ml-1" />
+            </button>
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section className="bg-white py-16">
+      <section className="py-16" style={{ background: '#0f1e3d' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">
             왜 마하수리인가요?
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+                className="p-8 rounded-2xl hover:opacity-90 transition-opacity"
+                style={{ background: 'linear-gradient(135deg, #1a2e5a 0%, #243d6e 100%)' }}
               >
-                <div className="w-14 h-14 bg-primary-600 rounded-xl flex items-center justify-center mb-4">
-                  <feature.icon className="w-8 h-8 text-white" />
+                <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center mb-5">
+                  <feature.icon className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-white mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <p className="text-blue-300 text-sm">{feature.description}</p>
               </div>
             ))}
           </div>
