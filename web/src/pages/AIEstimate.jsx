@@ -411,29 +411,6 @@ function AIEstimate() {
                 </div>
               )}
 
-              {/* Debug Info */}
-              <div className="mb-4 p-4 bg-gray-100 rounded-lg text-xs">
-                <p><strong>버튼 활성화 조건:</strong></p>
-                <ul className="mt-2 space-y-1">
-                  {category !== 'GENERAL' && (
-                    <li className={selectedService ? 'text-green-600' : 'text-red-600'}>
-                      ✓ 서비스 선택: {selectedService ? '완료' : '미완료'}
-                    </li>
-                  )}
-                  {category === 'GENERAL' && (
-                    <li className="text-gray-600">
-                      ✓ 서비스 선택: {selectedService ? '완료 (선택됨)' : '선택사항 (건너뜀)'}
-                    </li>
-                  )}
-                  <li className={images.length > 0 ? 'text-green-600' : 'text-red-600'}>
-                    ✓ 사진 업로드: {images.length > 0 ? `${images.length}장` : '미완료'}
-                  </li>
-                  <li className={address ? 'text-green-600' : 'text-red-600'}>
-                    ✓ 서비스 지역 선택: {address ? '완료' : '미완료'}
-                  </li>
-                </ul>
-              </div>
-
               <button
                 onClick={handleSubmit}
                 disabled={
@@ -624,7 +601,7 @@ function AIEstimate() {
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2">마하수리 보증 프로그램</h3>
                   <ul className="text-sm text-gray-700 space-y-1">
-                    <li>✓ 디지털 AS 하자이행보증서 자동 발행</li>
+                    <li>✓ 이행(하자)보증보험증권 자동 발행</li>
                     <li>✓ 정품 부품 사용 인증</li>
                     <li>✓ 에스크로 결제로 안심 거래</li>
                     <li>✓ 작업 후 1년 품질 보증</li>
