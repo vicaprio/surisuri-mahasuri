@@ -292,7 +292,7 @@ function Home() {
       {/* Hero Section */}
       <section
         className="relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #0f1e3d 0%, #1a2e5a 60%, #1e3a6e 100%)', minHeight: '360px' }}
+        style={{ background: 'linear-gradient(135deg, #0f1e3d 0%, #1a2e5a 60%, #1e3a6e 100%)', minHeight: '252px' }}
       >
         {/* Vehicle image — transparent PNG, anchored bottom-right, height fills section */}
         <img
@@ -312,7 +312,7 @@ function Home() {
         {/* Left: Text Content */}
         <div
           className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center"
-          style={{ minHeight: '360px' }}
+          style={{ minHeight: '252px' }}
         >
           <div className="py-12 md:py-16" style={{ maxWidth: '480px' }}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
