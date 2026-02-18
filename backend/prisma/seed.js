@@ -137,15 +137,20 @@ async function main() {
     },
   });
 
-  // 4. 테스트 건물 및 유닛 생성
-  const building = await prisma.building.create({
-    data: {
-      name: '테스트빌딩',
-      address: '서울시 강남구 역삼동 123-45',
-      postalCode: '06234',
-      companyId: company.id,
-    },
+  // 4. 테스트 건물 및 유닛 생성 (중복 방지)
+  let building = await prisma.building.findFirst({
+    where: { companyId: company.id },
   });
+  if (!building) {
+    building = await prisma.building.create({
+      data: {
+        name: '테스트빌딩',
+        address: '서울시 강남구 역삼동 123-45',
+        postalCode: '06234',
+        companyId: company.id,
+      },
+    });
+  }
 
   await prisma.unit.createMany({
     data: [
@@ -153,6 +158,7 @@ async function main() {
       { unitNumber: '102호', floor: 1, area: 33.0, buildingId: building.id },
       { unitNumber: '201호', floor: 2, area: 42.0, buildingId: building.id },
     ],
+    skipDuplicates: true,
   });
 
   console.log('✅ Created test users and company');
@@ -191,10 +197,12 @@ async function main() {
     },
   });
 
-  // 기사님 스킬 추가
+  // 기사님 스킬 추가 (중복 방지: upsert)
   for (const service of electricalServices) {
-    await prisma.technicianSkill.create({
-      data: {
+    await prisma.technicianSkill.upsert({
+      where: { technicianId_serviceId: { technicianId: tech1.id, serviceId: service.id } },
+      update: {},
+      create: {
         technicianId: tech1.id,
         serviceId: service.id,
         skillLevel: service.difficulty === 'A' ? 5 : service.difficulty === 'B' ? 4 : 3,
@@ -223,10 +231,12 @@ async function main() {
     },
   });
 
-  // 기사님 스킬 추가
+  // 기사님 스킬 추가 (중복 방지: upsert)
   for (const service of plumbingServices) {
-    await prisma.technicianSkill.create({
-      data: {
+    await prisma.technicianSkill.upsert({
+      where: { technicianId_serviceId: { technicianId: tech2.id, serviceId: service.id } },
+      update: {},
+      create: {
         technicianId: tech2.id,
         serviceId: service.id,
         skillLevel: service.difficulty === 'A' ? 5 : service.difficulty === 'B' ? 4 : 3,
