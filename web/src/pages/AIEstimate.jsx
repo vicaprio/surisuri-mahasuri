@@ -14,7 +14,8 @@ import {
   FileText,
   Shield,
   Calendar,
-  DollarSign
+  DollarSign,
+  MapPin
 } from 'lucide-react';
 
 function AIEstimate() {
@@ -35,6 +36,8 @@ function AIEstimate() {
   const [photoUrls, setPhotoUrls] = useState([]); // 업로드된 사진 URL (서비스 요청 생성 전 보관)
   const [restoredFromLogin, setRestoredFromLogin] = useState(false); // 로그인 후 복원 여부
   const [isStartingMatch, setIsStartingMatch] = useState(false);
+  const [showAddressModal, setShowAddressModal] = useState(false); // 매칭 전 주소 수집 모달
+  const [addressForMatching, setAddressForMatching] = useState('');
 
   const categories = [
     { name: '전기/조명', value: 'ELECTRICAL' },
@@ -108,11 +111,6 @@ function AIEstimate() {
 
     if (images.length === 0) {
       alert('사진을 업로드해주세요.');
-      return;
-    }
-
-    if (!address) {
-      alert('서비스 지역을 선택해주세요.');
       return;
     }
 
@@ -207,14 +205,14 @@ function AIEstimate() {
   };
 
   // 로그인 후 복원된 경우 또는 로그인 상태에서 매칭 시작
-  const startMatchingWithData = async (estimate, urls) => {
+  const startMatchingWithData = async (estimate, urls, addressOverride = null) => {
     setIsStartingMatch(true);
     localStorage.removeItem('pendingEstimate'); // 매칭 시작 시 저장 데이터 정리
     try {
       const formData = estimate._formData;
       const requestData = {
         serviceId: formData.serviceId,
-        address: formData.address,
+        address: addressOverride || formData.address || '주소 미입력',
         addressDetail: '',
         latitude: 37.5665,
         longitude: 126.9780,
@@ -258,7 +256,22 @@ function AIEstimate() {
       });
       return;
     }
+    // 주소가 없는 경우 매칭 전 수집
+    const currentAddress = estimateResult?._formData?.address;
+    if (!currentAddress) {
+      setShowAddressModal(true);
+      return;
+    }
     await startMatchingWithData(estimateResult, photoUrls);
+  };
+
+  const handleAddressModalConfirm = async () => {
+    if (!addressForMatching.trim()) {
+      alert('지역을 입력해주세요.');
+      return;
+    }
+    setShowAddressModal(false);
+    await startMatchingWithData(estimateResult, photoUrls, addressForMatching.trim());
   };
 
   const formatCurrency = (num) => {
@@ -486,8 +499,7 @@ function AIEstimate() {
                 onClick={handleSubmit}
                 disabled={
                   (category !== 'GENERAL' && !selectedService) ||
-                  images.length === 0 ||
-                  !address
+                  images.length === 0
                 }
                 className="w-full py-4 bg-accent-500 text-white text-lg font-semibold rounded-xl hover:bg-accent-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
@@ -682,6 +694,47 @@ function AIEstimate() {
           </div>
         )}
       </div>
+
+      {/* 주소 수집 모달 - 주소 없이 매칭 시작할 때 */}
+      {showAddressModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+            <div className="text-center mb-5">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-primary-100 rounded-full mb-3">
+                <MapPin className="w-7 h-7 text-primary-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-1">서비스 지역을 알려주세요</h3>
+              <p className="text-sm text-gray-500">
+                가까운 전문가 매칭을 위해 대략적인 지역이 필요합니다.<br/>
+                상세 주소는 매칭 확정 후 입력하시면 됩니다.
+              </p>
+            </div>
+            <input
+              type="text"
+              value={addressForMatching}
+              onChange={(e) => setAddressForMatching(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddressModalConfirm()}
+              placeholder="예: 서울 강남구, 부산 해운대구"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 mb-4"
+              autoFocus
+            />
+            <div className="space-y-2">
+              <button
+                onClick={handleAddressModalConfirm}
+                className="w-full py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+              >
+                매칭 시작하기
+              </button>
+              <button
+                onClick={() => setShowAddressModal(false)}
+                className="w-full py-3 bg-gray-100 text-gray-600 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

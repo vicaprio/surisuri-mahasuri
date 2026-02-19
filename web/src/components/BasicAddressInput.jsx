@@ -39,7 +39,7 @@ function BasicAddressInput({ address, onAddressChange }) {
       {/* 주소 검색 버튼 */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          서비스 지역(우선 동네만 알려주세요) <span className="text-red-500">*</span>
+          서비스 지역(우선 동네만 알려주세요) <span className="text-gray-400 font-normal">(선택)</span>
         </label>
         <div className="flex space-x-2">
           <input
