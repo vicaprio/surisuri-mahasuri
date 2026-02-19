@@ -51,7 +51,7 @@ ${description ? `설명: ${description}` : ''}
 비용은 한국 시장 기준 원화(KRW)로 산정하세요. JSON만 반환하세요.`;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-4.1',
       messages: [
         {
           role: 'user',

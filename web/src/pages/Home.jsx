@@ -353,7 +353,7 @@ function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {features.map((feature, index) => {
               // 0=드릴, 1=문서+세척기, 2=배관호스
-              const chars = ['/char-drill.png', '/char-washer.png', '/char-hose.png'];
+              const chars = ['/char-drill.webp', '/char-washer.webp', '/char-hose.webp'];
               return (
                 <div
                   key={index}

@@ -60,7 +60,7 @@ exports.supportChat = async (req, res) => {
     }
 
     const completion = await getOpenAI().chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4.1-mini',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         ...messages.slice(-10).map(({ role, content }) => ({ role, content })),

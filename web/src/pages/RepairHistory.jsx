@@ -49,30 +49,36 @@ function RepairHistory() {
     loadRepairs();
   }, [user, navigate]);
 
-  // Sample before/after images per category (picsum.photos — no API key needed)
+  // Sample before/during/after images per category (picsum.photos — no API key needed)
   const sampleImages = {
     '배관/수도': {
       before: 'https://picsum.photos/seed/plumbing-b/640/360',
+      during: 'https://picsum.photos/seed/plumbing-d/640/360',
       after:  'https://picsum.photos/seed/plumbing-a/640/360',
     },
     '전기/조명': {
       before: 'https://picsum.photos/seed/electric-b/640/360',
+      during: 'https://picsum.photos/seed/electric-d/640/360',
       after:  'https://picsum.photos/seed/electric-a/640/360',
     },
     '에어컨': {
       before: 'https://picsum.photos/seed/aircon-b/640/360',
+      during: 'https://picsum.photos/seed/aircon-d/640/360',
       after:  'https://picsum.photos/seed/aircon-a/640/360',
     },
     '도배/장판': {
       before: 'https://picsum.photos/seed/wallpaper-b/640/360',
+      during: 'https://picsum.photos/seed/wallpaper-d/640/360',
       after:  'https://picsum.photos/seed/wallpaper-a/640/360',
     },
     '목공/가구': {
       before: 'https://picsum.photos/seed/wood-b/640/360',
+      during: 'https://picsum.photos/seed/wood-d/640/360',
       after:  'https://picsum.photos/seed/wood-a/640/360',
     },
     default: {
       before: 'https://picsum.photos/seed/repair-b/640/360',
+      during: 'https://picsum.photos/seed/repair-d/640/360',
       after:  'https://picsum.photos/seed/repair-a/640/360',
     },
   };
@@ -81,45 +87,54 @@ function RepairHistory() {
   const mockRepairs = [
     {
       id: 1,
-      category: '배관/수도',
-      description: '싱크대 배수구 누수 수리',
-      date: '2026-02-10',
+      category: '도배/장판',
+      description: '벽타일이 깨졌어요',
+      date: '2026-02-02',
       status: 'completed',
-      cost: 65000,
+      cost: 150000,
       technician: '김기사',
       location: '서울시 강남구 테헤란로 123',
-      warrantyUntil: '2027-02-10',
+      warrantyUntil: '2027-02-02',
+      beforeImage: '/tile-before.webp',
+      duringImage: '/tile-during.webp',
+      afterImage:  '/tile-after.webp',
     },
     {
       id: 2,
-      category: '전기/조명',
-      description: '거실 조명 교체 및 스위치 수리',
-      date: '2026-01-28',
+      category: '도배/장판',
+      description: '벽타일이 깨졌어요',
+      date: '2026-02-02',
       status: 'completed',
-      cost: 45000,
+      cost: 120000,
       technician: '이기사',
       location: '서울시 강남구 테헤란로 123',
-      warrantyUntil: '2027-01-28',
+      warrantyUntil: '2027-02-02',
+      beforeImage: '/tile2-before.webp',
+      duringImage: '/tile-during.webp',
+      afterImage:  '/tile2-after.webp',
     },
     {
       id: 3,
-      category: '에어컨',
-      description: '에어컨 청소 및 필터 교체',
-      date: '2026-01-15',
-      status: 'warranty',
-      cost: 80000,
+      category: '배관/수도',
+      description: '천정누수로 벽에 곰팡이가 생겼어요',
+      date: '2026-02-09',
+      status: 'completed',
+      cost: 350000,
       technician: '박기사',
       location: '서울시 강남구 테헤란로 123',
-      warrantyUntil: '2027-01-15',
+      warrantyUntil: '2027-02-09',
+      beforeImage: '/ceiling-before.webp',
+      duringImage: '/ceiling-during.webp',
+      afterImage:  '/ceiling-after.webp',
     }
   ];
 
   // Use real data if available, otherwise use mock data
   // For each repair, attach sample images if no real images exist
   const withImages = (list) => list.map(r => {
-    if (r.beforeImage || r.photoUrls?.length) return r;
+    if (r.beforeImage || r.duringImage || r.photoUrls?.length) return r;
     const imgs = sampleImages[r.category] || sampleImages.default;
-    return { ...r, beforeImage: imgs.before, afterImage: imgs.after };
+    return { ...r, beforeImage: imgs.before, duringImage: imgs.during, afterImage: imgs.after };
   });
 
   const allRepairs = withImages(repairs.length > 0 ? repairs : mockRepairs);
@@ -177,6 +192,7 @@ function RepairHistory() {
   };
 
   const formatCurrency = (num) => {
+    if (num == null || isNaN(num)) return '-';
     return new Intl.NumberFormat('ko-KR').format(num) + '원';
   };
 
@@ -332,23 +348,24 @@ function RepairHistory() {
                     </div>
                   </div>
 
-                  {/* Before/After Images */}
-                  {(repair.beforeImage || repair.photoUrls) && (
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                  {/* Before/During/After Images */}
+                  {(repair.beforeImage || repair.duringImage || repair.afterImage || repair.photoUrls) && (
+                    <div className="grid grid-cols-3 gap-3 mb-4">
                       {[
-                        { url: repair.beforeImage || repair.photoUrls?.[0], label: '수리 전' },
-                        { url: repair.afterImage  || repair.photoUrls?.[1], label: '수리 후' },
+                        { url: repair.beforeImage || repair.photoUrls?.[0], label: '공사 전' },
+                        { url: repair.duringImage || repair.photoUrls?.[1], label: '공사 중' },
+                        { url: repair.afterImage  || repair.photoUrls?.[2], label: '공사 후' },
                       ].map(({ url, label }) => (
                         <div key={label}>
-                          <p className="text-xs text-gray-500 mb-2">{label}</p>
+                          <p className="text-xs text-orange-400 font-medium mb-2">{label}</p>
                           {url ? (
                             <img
-                              src={url.startsWith('http') ? url : `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}${url}`}
+                              src={url.startsWith('http') ? url : url}
                               alt={label}
                               className="w-full aspect-video object-cover bg-gray-200 rounded-lg"
                             />
                           ) : (
-                            <div className="aspect-video bg-gray-200 rounded-lg" />
+                            <div className="aspect-video bg-gray-700 rounded-lg border border-gray-600" />
                           )}
                         </div>
                       ))}
