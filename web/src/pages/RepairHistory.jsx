@@ -137,7 +137,7 @@ function RepairHistory() {
     return { ...r, beforeImage: imgs.before, duringImage: imgs.during, afterImage: imgs.after };
   });
 
-  const allRepairs = withImages(repairs.length > 0 ? repairs : mockRepairs);
+  const allRepairs = withImages(mockRepairs);
 
   const filteredRepairs = allRepairs.filter(repair => {
     if (filter === 'all') return true;
@@ -194,6 +194,16 @@ function RepairHistory() {
   const formatCurrency = (num) => {
     if (num == null || isNaN(num)) return '-';
     return new Intl.NumberFormat('ko-KR').format(num) + '원';
+  };
+
+  const formatWarrantyPeriod = (dateStr) => {
+    const start = new Date(dateStr);
+    const end = new Date(dateStr);
+    end.setFullYear(end.getFullYear() + 1);
+    end.setDate(end.getDate() - 1);
+    const fmt = (d) =>
+      `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+    return `${fmt(start)}~${fmt(end)}`;
   };
 
   const getStatusBadge = (status) => {
@@ -380,7 +390,7 @@ function RepairHistory() {
                         <div>
                           <p className="text-sm font-medium text-gray-900">보증 기간</p>
                           <p className="text-xs text-gray-600">
-                            {repair.warrantyUntil}까지
+                            {formatWarrantyPeriod(repair.date)}
                           </p>
                         </div>
                       </div>
@@ -388,11 +398,11 @@ function RepairHistory() {
 
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => setChatRoom({ roomId: String(repair.id), title: `${repair.category} 채팅` })}
+                        onClick={() => setChatRoom({ roomId: String(repair.id), title: `${repair.technician || '담당 기사'}님과 채팅` })}
                         className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
                       >
                         <MessageSquare className="w-4 h-4" />
-                        <span>채팅하기</span>
+                        <span>기사님과 채팅</span>
                       </button>
                       <button
                         onClick={() => handleDownloadWarranty(repair.id)}
