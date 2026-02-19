@@ -241,13 +241,16 @@ function AIEstimate() {
 
   const handleStartMatching = async () => {
     if (!user) {
-      // 견적 데이터를 localStorage에 저장 후 로그인 페이지로 이동
-      // (OAuth 소셜 로그인 외부 리다이렉트에서도 데이터 유지를 위해 localStorage 사용)
-      localStorage.setItem('pendingEstimate', JSON.stringify({
-        estimateResult,
-        photoUrls,
-      }));
-      localStorage.setItem('pendingReturnTo', '/ai-estimate');
+      // 견적 데이터 저장 실패해도 로그인 페이지는 반드시 이동
+      try {
+        localStorage.setItem('pendingEstimate', JSON.stringify({
+          estimateResult,
+          photoUrls,
+        }));
+        localStorage.setItem('pendingReturnTo', '/ai-estimate');
+      } catch (e) {
+        console.error('Failed to save estimate to localStorage:', e);
+      }
       navigate('/login', {
         state: {
           returnTo: '/ai-estimate',
