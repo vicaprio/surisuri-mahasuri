@@ -59,21 +59,22 @@ function AIEstimate() {
     loadServices();
   }, []);
 
-  // 로그인 후 돌아온 경우: sessionStorage에 저장된 견적 데이터 복원
+  // 로그인 후 돌아온 경우: localStorage에 저장된 견적 데이터 복원
+  // - localStorage 사용: OAuth 외부 리다이렉트에서도 데이터 유지
+  // - useEffect에서 즉시 삭제하지 않음: React StrictMode 이중 실행 대응
   useEffect(() => {
-    const pending = sessionStorage.getItem('pendingEstimate');
+    const pending = localStorage.getItem('pendingEstimate');
     if (pending) {
       try {
         const data = JSON.parse(pending);
-        sessionStorage.removeItem('pendingEstimate');
-        localStorage.removeItem('pendingReturnTo');
         setEstimateResult(data.estimateResult);
         setPhotoUrls(data.photoUrls);
         setStep(3);
         setRestoredFromLogin(true);
+        localStorage.removeItem('pendingReturnTo');
       } catch (e) {
         console.error('Failed to restore pending estimate:', e);
-        sessionStorage.removeItem('pendingEstimate');
+        localStorage.removeItem('pendingEstimate');
       }
     }
   }, []);
@@ -208,6 +209,7 @@ function AIEstimate() {
   // 로그인 후 복원된 경우 또는 로그인 상태에서 매칭 시작
   const startMatchingWithData = async (estimate, urls) => {
     setIsStartingMatch(true);
+    localStorage.removeItem('pendingEstimate'); // 매칭 시작 시 저장 데이터 정리
     try {
       const formData = estimate._formData;
       const requestData = {
@@ -241,8 +243,9 @@ function AIEstimate() {
 
   const handleStartMatching = async () => {
     if (!user) {
-      // 견적 데이터를 sessionStorage에 저장 후 로그인 페이지로 이동
-      sessionStorage.setItem('pendingEstimate', JSON.stringify({
+      // 견적 데이터를 localStorage에 저장 후 로그인 페이지로 이동
+      // (OAuth 소셜 로그인 외부 리다이렉트에서도 데이터 유지를 위해 localStorage 사용)
+      localStorage.setItem('pendingEstimate', JSON.stringify({
         estimateResult,
         photoUrls,
       }));
@@ -634,6 +637,7 @@ function AIEstimate() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => {
+                    localStorage.removeItem('pendingEstimate');
                     setStep(1);
                     setImages([]);
                     setDescription('');
@@ -655,7 +659,7 @@ function AIEstimate() {
               </div>
               {!user && (
                 <p className="text-center text-sm text-gray-500 mt-2">
-                  매칭 시작 시 로그인이 필요합니다. 입력하신 견적 정보는 로그인 후에도 유지됩니다.
+                  매칭 시작 시 로그인이 필요합니다(구글, 네이버, 카카오 간편 로그인). 입력하신 견적 정보는 로그인 후에도 유지됩니다.
                 </p>
               )}
             </div>
