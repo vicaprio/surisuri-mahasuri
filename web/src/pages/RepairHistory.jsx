@@ -110,7 +110,7 @@ function RepairHistory() {
       location: '서울시 강남구 테헤란로 123',
       warrantyUntil: '2027-02-02',
       beforeImage: '/tile2-before.webp',
-      duringImage: '/tile-during.webp',
+      duringImage: null,
       afterImage:  '/tile2-after.webp',
     },
     {
