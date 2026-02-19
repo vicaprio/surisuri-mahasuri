@@ -249,7 +249,7 @@ function AIEstimate() {
             estimateResult,
             photoUrls,
           }));
-          localStorage.setItem('pendingReturnTo', '/ai-estimate');
+          localStorage.setItem('pendingReturnTo', '/estimate');
         } catch (e) {
           console.error('Failed to save estimate to localStorage:', e);
         }
@@ -684,12 +684,12 @@ function AIEstimate() {
                     onClick={() => {
                       try {
                         localStorage.setItem('pendingEstimate', JSON.stringify({ estimateResult, photoUrls }));
-                        localStorage.setItem('pendingReturnTo', '/ai-estimate');
+                        localStorage.setItem('pendingReturnTo', '/estimate');
                       } catch (e) {}
                     }}
                     className="flex-1 py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 transition-colors text-center"
                   >
-                    로그인 후 전문가 매칭하기
+                    로그인 후 기술자 매칭하기
                   </a>
                 )}
               </div>
