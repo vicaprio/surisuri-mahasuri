@@ -240,32 +240,32 @@ function AIEstimate() {
   };
 
   const handleStartMatching = async () => {
-    if (!user) {
-      // 견적 데이터 저장 실패해도 로그인 페이지는 반드시 이동
-      try {
-        localStorage.setItem('pendingEstimate', JSON.stringify({
-          estimateResult,
-          photoUrls,
-        }));
-        localStorage.setItem('pendingReturnTo', '/ai-estimate');
-      } catch (e) {
-        console.error('Failed to save estimate to localStorage:', e);
-      }
-      navigate('/login', {
-        state: {
-          returnTo: '/ai-estimate',
-          message: '전문가 매칭을 시작하려면 로그인이 필요합니다.\n로그인 후 입력하신 견적이 자동으로 복원됩니다.',
+    try {
+      if (!user) {
+        try {
+          localStorage.setItem('pendingEstimate', JSON.stringify({
+            estimateResult,
+            photoUrls,
+          }));
+          localStorage.setItem('pendingReturnTo', '/ai-estimate');
+        } catch (e) {
+          console.error('Failed to save estimate to localStorage:', e);
         }
-      });
-      return;
+        // window.location.href 사용: 모바일에서 navigate()보다 안정적
+        window.location.href = '/login';
+        return;
+      }
+      // 주소가 없는 경우 매칭 전 수집
+      const currentAddress = estimateResult?._formData?.address;
+      if (!currentAddress) {
+        setShowAddressModal(true);
+        return;
+      }
+      await startMatchingWithData(estimateResult, photoUrls);
+    } catch (e) {
+      console.error('handleStartMatching error:', e);
+      alert('오류가 발생했습니다. 다시 시도해주세요.\n' + e.message);
     }
-    // 주소가 없는 경우 매칭 전 수집
-    const currentAddress = estimateResult?._formData?.address;
-    if (!currentAddress) {
-      setShowAddressModal(true);
-      return;
-    }
-    await startMatchingWithData(estimateResult, photoUrls);
   };
 
   const handleAddressModalConfirm = async () => {

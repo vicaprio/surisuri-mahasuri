@@ -15,8 +15,9 @@ function Login() {
   const [error, setError] = useState('');
 
   // 견적 페이지에서 넘어온 경우 안내 메시지 표시
+  // window.location.href로 이동 시 state가 없으므로 localStorage도 확인
   const redirectMessage = location.state?.message;
-  const returnTo = location.state?.returnTo;
+  const returnTo = location.state?.returnTo || localStorage.getItem('pendingReturnTo');
 
   const navigateAfterLogin = (type) => {
     if (returnTo) {
