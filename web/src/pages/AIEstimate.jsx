@@ -424,13 +424,15 @@ function AIEstimate() {
                 </div>
               )}
 
-              {/* Address Input */}
-              <div className="mb-6">
-                <BasicAddressInput
-                  address={address}
-                  onAddressChange={handleAddressChange}
-                />
-              </div>
+              {/* Address Input - 로그인 상태에서만 표시 */}
+              {user && (
+                <div className="mb-6">
+                  <BasicAddressInput
+                    address={address}
+                    onAddressChange={handleAddressChange}
+                  />
+                </div>
+              )}
 
               {/* Description */}
               <div className="mb-6">
