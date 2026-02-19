@@ -119,7 +119,9 @@ function AIEstimate() {
       return;
     }
 
-    // 로그인 체크 없이 AI 분석 진행 — 매칭 시점에 로그인 요청
+    // 새 견적 시작 시 stale 데이터 정리
+    localStorage.removeItem('pendingEstimate');
+    setRestoredFromLogin(false);
 
     // Step 2: 로딩 시작
     setStep(2);
@@ -556,7 +558,8 @@ function AIEstimate() {
         {step === 3 && estimateResult && (
           <div className="space-y-6">
             {/* Success / Restored Message */}
-            {restoredFromLogin ? (
+            {restoredFromLogin && user ? (
+              // 로그인 완료 후 복원 (user가 실제로 설정된 경우만)
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 flex items-center">
                 <CheckCircle className="w-8 h-8 text-blue-600 mr-4 flex-shrink-0" />
                 <div className="flex-1">
@@ -666,13 +669,29 @@ function AIEstimate() {
                 >
                   다시 요청하기
                 </button>
-                <button
-                  onClick={handleStartMatching}
-                  disabled={isStartingMatch}
-                  className="flex-1 py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  {isStartingMatch ? '매칭 시작 중...' : user ? '전문가 매칭 시작하기' : '로그인 후 전문가 매칭하기'}
-                </button>
+                {user ? (
+                  <button
+                    onClick={handleStartMatching}
+                    disabled={isStartingMatch}
+                    className="flex-1 py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    {isStartingMatch ? '매칭 시작 중...' : '전문가 매칭 시작하기'}
+                  </button>
+                ) : (
+                  // 비로그인: <a href> 사용 - JS 실행 여부와 무관하게 100% 동작
+                  <a
+                    href="/login"
+                    onClick={() => {
+                      try {
+                        localStorage.setItem('pendingEstimate', JSON.stringify({ estimateResult, photoUrls }));
+                        localStorage.setItem('pendingReturnTo', '/ai-estimate');
+                      } catch (e) {}
+                    }}
+                    className="flex-1 py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 transition-colors text-center"
+                  >
+                    로그인 후 전문가 매칭하기
+                  </a>
+                )}
               </div>
               {!user && (
                 <p className="text-center text-sm text-gray-500 mt-2">
