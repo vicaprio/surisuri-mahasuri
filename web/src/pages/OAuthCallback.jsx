@@ -79,8 +79,12 @@ function OAuthCallback() {
 
           console.log('OAuth login successful:', { userId: user.id, email: user.email, userType: user.userType });
 
-          // Redirect based on user type
-          if (user.userType === 'technician' || user.role === 'technician') {
+          // 견적 페이지에서 로그인하러 온 경우 복원
+          const pendingReturnTo = localStorage.getItem('pendingReturnTo');
+          if (pendingReturnTo) {
+            localStorage.removeItem('pendingReturnTo');
+            navigate(pendingReturnTo);
+          } else if (user.userType === 'technician' || user.role === 'technician') {
             navigate('/technician');
           } else {
             navigate('/');

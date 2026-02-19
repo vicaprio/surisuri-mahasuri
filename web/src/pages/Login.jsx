@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Wrench, ArrowLeft } from 'lucide-react';
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const [email, setEmail] = useState('');
@@ -12,6 +13,20 @@ function Login() {
   const [userType, setUserType] = useState('user'); // user or technician
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // 견적 페이지에서 넘어온 경우 안내 메시지 표시
+  const redirectMessage = location.state?.message;
+  const returnTo = location.state?.returnTo;
+
+  const navigateAfterLogin = (type) => {
+    if (returnTo) {
+      navigate(returnTo);
+    } else if (type === 'technician') {
+      navigate('/technician');
+    } else {
+      navigate('/');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,11 +38,7 @@ function Login() {
     console.log('Login result:', result);
 
     if (result.success) {
-      if (userType === 'technician') {
-        navigate('/technician');
-      } else {
-        navigate('/');
-      }
+      navigateAfterLogin(userType);
     } else {
       setError(result.error || '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
       console.error('Login failed:', result.error);
@@ -48,11 +59,7 @@ function Login() {
     console.log('Quick login result:', result);
 
     if (result.success) {
-      if (type === 'technician') {
-        navigate('/technician');
-      } else {
-        navigate('/');
-      }
+      navigateAfterLogin(type);
     } else {
       setError(result.error || '로그인에 실패했습니다.');
       console.error('Quick login failed:', result.error);
@@ -146,6 +153,13 @@ function Login() {
               기사님
             </button>
           </div>
+
+          {/* Redirect Message (견적 페이지에서 넘어온 경우) */}
+          {redirectMessage && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm whitespace-pre-line">
+              {redirectMessage}
+            </div>
+          )}
 
           {/* Error Message */}
           {error && (

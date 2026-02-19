@@ -161,7 +161,7 @@ function MatchingStatus() {
               가까운 전문가를 찾고 있습니다
             </h2>
             <p className="text-gray-600 mb-6">
-              최적의 전문가를 매칭하는 중입니다. 잠시만 기다려주세요...
+              최적의 전문가를 매칭하는 중입니다. 잠시만 기다려주세요(최대 5분)
             </p>
             <div className="max-w-md mx-auto">
               <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
@@ -338,59 +338,123 @@ function MatchingStatus() {
           </div>
         )}
 
-        {/* Scrolling Technicians Carousel - 매칭 중일 때만 표시 */}
+        {/* Scrolling Reviews Carousel - 매칭 중일 때만 표시 */}
         {(matchStatus?.status === 'SEARCHING' || matchStatus?.status === 'NOTIFYING') && (
           <div className="mt-8 overflow-hidden">
-            <h3 className="text-sm font-semibold text-gray-600 mb-4 text-center">
-              🔧 해당 공종의 활동 중인 전문가들
+            <h3 className="text-sm font-semibold text-gray-500 mb-4 text-center tracking-wide uppercase">
+              ⭐ 마하수리 고객 실제 후기
             </h3>
             <div className="relative">
               <div className="flex animate-scroll-left space-x-4">
-                {/* 기술자 카드 2번 반복해서 무한 스크롤 효과 */}
                 {[...Array(2)].map((_, repeatIndex) => (
                   <div key={`repeat-${repeatIndex}`} className="flex space-x-4">
-                    {/* 샘플 기술자들 - 실제로는 matchStatus.availableTechnicians 사용 */}
                     {[
-                      { id: 1, name: '김전기', rating: 4.9, reviews: 234, category: '전기', photo: null },
-                      { id: 2, name: '이배관', rating: 4.8, reviews: 189, category: '배관', photo: null },
-                      { id: 3, name: '박에어컨', rating: 4.7, reviews: 156, category: '에어컨', photo: null },
-                      { id: 4, name: '최도배', rating: 4.9, reviews: 267, category: '도배', photo: null },
-                      { id: 5, name: '정목공', rating: 4.8, reviews: 201, category: '목공', photo: null },
-                      { id: 6, name: '강샷시', rating: 4.6, reviews: 145, category: '샷시', photo: null },
-                    ].map((tech) => (
+                      {
+                        id: 1,
+                        name: '김전기',
+                        rating: 5,
+                        category: '전기/조명',
+                        reviewer: '박**님',
+                        date: '2025.01.08',
+                        review: '두꺼비집이 자꾸 내려가서 불렀는데 원인까지 정확히 짚어주셨어요. 단순 교체가 아니라 배선 문제까지 해결해 주셔서 너무 만족합니다!',
+                      },
+                      {
+                        id: 2,
+                        name: '이배관',
+                        rating: 5,
+                        category: '배관/수도',
+                        reviewer: '최**님',
+                        date: '2025.01.14',
+                        review: '싱크대 아래가 계속 물이 새서 불안했는데 빠르게 연락 주시고 당일 처리해 주셨어요. 꼼꼼하게 마감까지 깔끔하게 해주셔서 감사합니다.',
+                      },
+                      {
+                        id: 3,
+                        name: '박에어컨',
+                        rating: 5,
+                        category: '에어컨',
+                        reviewer: '정**님',
+                        date: '2025.01.20',
+                        review: '여름철 냉방이 안 돼서 급하게 연락했는데 2시간 내로 오셨어요. 냉매 부족이었는데 괜한 부품 교체 없이 정직하게 처리해 주신 점이 인상적이었어요.',
+                      },
+                      {
+                        id: 4,
+                        name: '최도배',
+                        rating: 5,
+                        category: '도배/장판',
+                        reviewer: '김**님',
+                        date: '2025.01.25',
+                        review: '이사 전 도배 맡겼는데 기존 벽지 뜯는 것부터 마감까지 하루 만에 끝내주셨어요. 이음새 하나 없이 완벽해서 입주할 때 기분이 너무 좋았습니다.',
+                      },
+                      {
+                        id: 5,
+                        name: '정목공',
+                        rating: 4,
+                        category: '목공/가구',
+                        reviewer: '이**님',
+                        date: '2025.02.01',
+                        review: '붙박이장 문짝이 틀어져서 맡겼더니 다른 곳 하자까지 미리 체크해 주셨어요. 꼼꼼한 분이라 믿고 맡길 수 있었어요.',
+                      },
+                      {
+                        id: 6,
+                        name: '강전기',
+                        rating: 5,
+                        category: '전기/조명',
+                        reviewer: '손**님',
+                        date: '2025.02.05',
+                        review: '조명 교체 간단한 작업인데도 안전 점검까지 해주셔서 놀랐어요. 작업 후 보증서까지 챙겨주셔서 마하수리 믿고 쓰게 됐습니다.',
+                      },
+                      {
+                        id: 7,
+                        name: '윤배관',
+                        rating: 5,
+                        category: '배관/수도',
+                        reviewer: '홍**님',
+                        date: '2025.02.10',
+                        review: '화장실 변기 막힘으로 연락했는데 막힘 원인을 카메라로 직접 보여주시면서 설명해 주셨어요. 투명하게 처리해 주셔서 너무 신뢰가 갔어요.',
+                      },
+                      {
+                        id: 8,
+                        name: '오도배',
+                        rating: 5,
+                        category: '도배/장판',
+                        reviewer: '나**님',
+                        date: '2025.02.14',
+                        review: '장판이 들떠서 교체했는데 기존 것보다 훨씬 깔끔하게 시공해 주셨어요. 가격도 합리적이고 뒷정리까지 완벽하게 해주셔서 감동받았습니다.',
+                      },
+                    ].map((item) => (
                       <div
-                        key={`${repeatIndex}-${tech.id}`}
-                        className="flex-shrink-0 w-64 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-4 border border-gray-700"
+                        key={`${repeatIndex}-${item.id}`}
+                        className="flex-shrink-0 w-72 bg-white rounded-2xl p-5 shadow-sm border border-gray-100"
                       >
-                        <div className="flex items-center space-x-3 mb-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
-                            {tech.photo ? (
-                              <img
-                                src={tech.photo}
-                                alt={tech.name}
-                                className="w-full h-full rounded-full object-cover"
-                              />
-                            ) : (
-                              <User className="w-6 h-6 text-white" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-white text-base truncate">
-                              {tech.name}
-                            </h4>
-                            <div className="flex items-center space-x-1 text-xs">
-                              <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                              <span className="text-yellow-400 font-medium">{tech.rating}</span>
-                              <span className="text-gray-400">({tech.reviews})</span>
+                        {/* 별점 */}
+                        <div className="flex items-center space-x-1 mb-3">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${i < item.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-200'}`}
+                            />
+                          ))}
+                          <span className="ml-1 text-xs text-gray-400">{item.date}</span>
+                        </div>
+
+                        {/* 리뷰 내용 */}
+                        <p className="text-sm text-gray-700 leading-relaxed mb-4 line-clamp-3">
+                          "{item.review}"
+                        </p>
+
+                        {/* 작성자 + 전문가 정보 */}
+                        <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
+                              <User className="w-4 h-4 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold text-gray-800">{item.name} 기사님</p>
+                              <p className="text-xs text-gray-400">{item.reviewer} 작성</p>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-400">
-                            ✓ 무료 견적 받기 및 리뷰 보기
-                          </span>
-                          <span className="text-xs px-2 py-1 bg-primary-600/20 text-primary-400 rounded-full">
-                            {tech.category}
+                          <span className="text-xs px-2 py-1 bg-primary-50 text-primary-600 rounded-full font-medium">
+                            {item.category}
                           </span>
                         </div>
                       </div>

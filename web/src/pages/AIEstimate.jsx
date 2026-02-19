@@ -32,6 +32,9 @@ function AIEstimate() {
   const [selectedService, setSelectedService] = useState(null);
   const [address, setAddress] = useState('');
   const [addressData, setAddressData] = useState(null);
+  const [photoUrls, setPhotoUrls] = useState([]); // 업로드된 사진 URL (서비스 요청 생성 전 보관)
+  const [restoredFromLogin, setRestoredFromLogin] = useState(false); // 로그인 후 복원 여부
+  const [isStartingMatch, setIsStartingMatch] = useState(false);
 
   const categories = [
     { name: '전기/조명', value: 'ELECTRICAL' },
@@ -54,6 +57,25 @@ function AIEstimate() {
       }
     };
     loadServices();
+  }, []);
+
+  // 로그인 후 돌아온 경우: sessionStorage에 저장된 견적 데이터 복원
+  useEffect(() => {
+    const pending = sessionStorage.getItem('pendingEstimate');
+    if (pending) {
+      try {
+        const data = JSON.parse(pending);
+        sessionStorage.removeItem('pendingEstimate');
+        localStorage.removeItem('pendingReturnTo');
+        setEstimateResult(data.estimateResult);
+        setPhotoUrls(data.photoUrls);
+        setStep(3);
+        setRestoredFromLogin(true);
+      } catch (e) {
+        console.error('Failed to restore pending estimate:', e);
+        sessionStorage.removeItem('pendingEstimate');
+      }
+    }
   }, []);
 
   const handleImageUpload = (e) => {
@@ -98,29 +120,26 @@ function AIEstimate() {
       return;
     }
 
-    if (!user) {
-      alert('로그인이 필요합니다.');
-      navigate('/login');
-      return;
-    }
+    // 로그인 체크 없이 AI 분석 진행 — 매칭 시점에 로그인 요청
 
     // Step 2: 로딩 시작
     setStep(2);
 
     try {
       // Upload images first
-      let photoUrls = [];
+      let uploadedPhotoUrls = [];
       if (images.length > 0) {
         const files = images.map(img => img.file);
         const uploadResponse = await uploadAPI.multiple(files);
-        photoUrls = uploadResponse.data.data.map(file => file.url);
+        uploadedPhotoUrls = uploadResponse.data.data.map(file => file.url);
       }
+      setPhotoUrls(uploadedPhotoUrls);
 
       // Call AI analysis
       let aiResult = null;
       try {
         const aiResponse = await aiAPI.analyzeEstimate({
-          photoUrls,
+          photoUrls: uploadedPhotoUrls,
           description,
           category,
           serviceName: selectedService?.name || null,
@@ -130,44 +149,24 @@ function AIEstimate() {
         console.error('AI analysis failed, using fallback:', aiError);
       }
 
-      // Simple geocoding - default to Seoul City Hall coordinates
-      const latitude = 37.5665;
-      const longitude = 126.9780;
-
-      // Create service request
-      const requestData = {
-        serviceId: selectedService?.id || null,
-        address: address,
-        addressDetail: '',
-        latitude: latitude,
-        longitude: longitude,
-        description: description || '사진을 참고해주세요',
-        photoUrls: photoUrls,
-        requestType: 'ASAP',
-        category: category
-      };
-
-      const response = await serviceRequestAPI.create(requestData);
-      const serviceRequest = response.data.data;
-
-      // Build estimate result from AI + service request
+      // Build estimate result from AI (서비스 요청은 매칭 시작 시 생성)
+      const fallbackCost = selectedService?.basePrice || 100000;
       const avgCost = aiResult
         ? Math.round((aiResult.estimatedMinCost + aiResult.estimatedMaxCost) / 2)
-        : serviceRequest.estimatedCost;
+        : fallbackCost;
 
       const estimate = {
-        requestId: serviceRequest.id,
-        requestNumber: serviceRequest.requestNumber,
+        // requestId/requestNumber는 매칭 시작(로그인 후) 시점에 생성됨
         summary: aiResult?.summary || null,
         estimatedCost: {
-          min: aiResult?.estimatedMinCost ?? Math.floor(serviceRequest.estimatedCost * 0.8),
-          max: aiResult?.estimatedMaxCost ?? Math.ceil(serviceRequest.estimatedCost * 1.2),
+          min: aiResult?.estimatedMinCost ?? Math.floor(fallbackCost * 0.8),
+          max: aiResult?.estimatedMaxCost ?? Math.ceil(fallbackCost * 1.2),
           average: avgCost,
         },
         laborCost: Math.floor(avgCost * 0.6),
         materialCost: Math.floor(avgCost * 0.4),
         estimatedTime: aiResult?.estimatedTime ?? (selectedService
-          ? `${Math.floor(selectedService.estimatedDuration / 60)}-${Math.ceil(selectedService.estimatedDuration / 60)}시간`
+          ? formatDuration(selectedService.estimatedDuration)
           : '현장 확인 후 결정'),
         difficulty: aiResult?.difficulty ?? (selectedService
           ? (selectedService.difficulty === 'A' ? '낮음' : selectedService.difficulty === 'B' ? '중간' : '높음')
@@ -187,19 +186,88 @@ function AIEstimate() {
           '현장 확인 후 추가 작업 필요 여부 판단',
           '전문 기사님 배정 진행 중',
         ],
+        // 서비스 요청 생성에 필요한 폼 데이터 보관
+        _formData: {
+          serviceId: selectedService?.id || null,
+          address,
+          description: description || '사진을 참고해주세요',
+          category,
+          requestType: 'ASAP',
+        },
       };
 
       setEstimateResult(estimate);
       setStep(3);
     } catch (error) {
-      console.error('Service request error:', error);
-      alert('견적 요청 중 오류가 발생했습니다. 다시 시도해주세요.');
+      console.error('Estimate error:', error);
+      alert('견적 분석 중 오류가 발생했습니다. 다시 시도해주세요.');
       setStep(1);
     }
   };
 
+  // 로그인 후 복원된 경우 또는 로그인 상태에서 매칭 시작
+  const startMatchingWithData = async (estimate, urls) => {
+    setIsStartingMatch(true);
+    try {
+      const formData = estimate._formData;
+      const requestData = {
+        serviceId: formData.serviceId,
+        address: formData.address,
+        addressDetail: '',
+        latitude: 37.5665,
+        longitude: 126.9780,
+        description: formData.description,
+        photoUrls: urls,
+        requestType: formData.requestType,
+        category: formData.category,
+      };
+
+      const response = await serviceRequestAPI.create(requestData);
+      const serviceRequest = response.data.data;
+
+      const matchResponse = await matchingAPI.startAutoMatch(serviceRequest.id);
+      console.log('Matching started:', matchResponse.data);
+
+      navigate('/matching-status', {
+        state: { serviceRequestId: serviceRequest.id }
+      });
+    } catch (error) {
+      console.error('Failed to start matching:', error);
+      const errorMsg = error.response?.data?.error || '매칭 시작에 실패했습니다.';
+      alert(`${errorMsg} 수리 이력에서 다시 시도해주세요.`);
+      setIsStartingMatch(false);
+    }
+  };
+
+  const handleStartMatching = async () => {
+    if (!user) {
+      // 견적 데이터를 sessionStorage에 저장 후 로그인 페이지로 이동
+      sessionStorage.setItem('pendingEstimate', JSON.stringify({
+        estimateResult,
+        photoUrls,
+      }));
+      localStorage.setItem('pendingReturnTo', '/ai-estimate');
+      navigate('/login', {
+        state: {
+          returnTo: '/ai-estimate',
+          message: '전문가 매칭을 시작하려면 로그인이 필요합니다.\n로그인 후 입력하신 견적이 자동으로 복원됩니다.',
+        }
+      });
+      return;
+    }
+    await startMatchingWithData(estimateResult, photoUrls);
+  };
+
   const formatCurrency = (num) => {
     return new Intl.NumberFormat('ko-KR').format(num) + '원';
+  };
+
+  const formatDuration = (minutes) => {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    if (h === 0) return `${m}분`;
+    if (m === 0) return `${h}시간`;
+    return `${h}시간 ${m}분`;
   };
 
   return (
@@ -324,7 +392,7 @@ function AIEstimate() {
                               <h3 className="font-semibold text-gray-900">{service.name}</h3>
                               <p className="text-sm text-gray-600 mt-1">{service.description}</p>
                               <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                                <span>예상 {Math.floor(service.estimatedDuration / 60)}시간</span>
+                                <span>예상 {formatDuration(service.estimatedDuration)}</span>
                                 <span>난이도: {service.difficulty}</span>
                               </div>
                             </div>
@@ -467,23 +535,28 @@ function AIEstimate() {
         {/* Step 3: 견적 결과 */}
         {step === 3 && estimateResult && (
           <div className="space-y-6">
-            {/* Success Message */}
-            <div className="bg-green-50 border border-green-200 rounded-xl p-6 flex items-center">
-              <CheckCircle className="w-8 h-8 text-green-600 mr-4 flex-shrink-0" />
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">견적 요청이 접수되었습니다! 🎉</h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  AI가 예상 견적을 산출했습니다. 전문가가 확인 후 연락드릴 예정입니다.
-                  <br />
-                  수리 이력 페이지에서 진행 상황을 확인하실 수 있습니다.
-                </p>
-                {estimateResult.requestNumber && (
-                  <p className="text-xs text-gray-500">
-                    요청 번호: <span className="font-mono font-semibold">{estimateResult.requestNumber}</span>
+            {/* Success / Restored Message */}
+            {restoredFromLogin ? (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 flex items-center">
+                <CheckCircle className="w-8 h-8 text-blue-600 mr-4 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 mb-1">로그인이 완료되었습니다!</h3>
+                  <p className="text-sm text-gray-700">
+                    이전에 분석한 견적을 불러왔습니다. 아래에서 전문가 매칭을 시작해보세요.
                   </p>
-                )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-green-50 border border-green-200 rounded-xl p-6 flex items-center">
+                <CheckCircle className="w-8 h-8 text-green-600 mr-4 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 mb-1">AI 견적 분석이 완료되었습니다! 🎉</h3>
+                  <p className="text-sm text-gray-700">
+                    AI가 예상 견적을 산출했습니다. 전문가 매칭을 시작하시면 가장 적합한 기사님을 연결해드립니다.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* AI Summary */}
             {estimateResult.summary && (
@@ -565,33 +638,26 @@ function AIEstimate() {
                     setImages([]);
                     setDescription('');
                     setEstimateResult(null);
+                    setPhotoUrls([]);
+                    setRestoredFromLogin(false);
                   }}
                   className="flex-1 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
                 >
                   다시 요청하기
                 </button>
                 <button
-                  onClick={async () => {
-                    try {
-                      // 자동 매칭 시작
-                      const response = await matchingAPI.startAutoMatch(estimateResult.requestId);
-                      console.log('Matching started:', response.data);
-                      // 매칭 상태 페이지로 이동
-                      navigate('/matching-status', {
-                        state: { serviceRequestId: estimateResult.requestId }
-                      });
-                    } catch (error) {
-                      console.error('Failed to start matching:', error);
-                      const errorMsg = error.response?.data?.error || '매칭 시작에 실패했습니다.';
-                      alert(`${errorMsg} 수리 이력에서 다시 시도해주세요.`);
-                      navigate('/history');
-                    }
-                  }}
-                  className="flex-1 py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 transition-colors"
+                  onClick={handleStartMatching}
+                  disabled={isStartingMatch}
+                  className="flex-1 py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                  전문가 매칭 시작하기
+                  {isStartingMatch ? '매칭 시작 중...' : user ? '전문가 매칭 시작하기' : '로그인 후 전문가 매칭하기'}
                 </button>
               </div>
+              {!user && (
+                <p className="text-center text-sm text-gray-500 mt-2">
+                  매칭 시작 시 로그인이 필요합니다. 입력하신 견적 정보는 로그인 후에도 유지됩니다.
+                </p>
+              )}
             </div>
 
             {/* Warranty Info */}
